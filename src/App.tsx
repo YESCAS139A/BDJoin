@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import './App.css'
-import TopBar from './Layouts/TopBar'
+import TopBar from './components/TopBar'
 
 function App() {
 
