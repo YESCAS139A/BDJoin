@@ -1,12 +1,14 @@
+import { Outlet } from 'react-router-dom'
 import './App.css'
+import TopBar from './Layouts/TopBar'
 
 function App() {
 
   return (
-    <>
-      <h1>hello world</h1>
-      <p>bienvenidos</p>
-    </>
+    <div className="flex flex-col min-h-screen w-full">
+      <TopBar /> 
+        <Outlet /> 
+    </div>
   )
 }
 
