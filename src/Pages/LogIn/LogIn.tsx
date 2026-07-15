@@ -1,11 +1,9 @@
-
-
-const LogIn = () => {
-    return (
-        <div>
-            <p>Log In Page</p>
-        </div>
-    )
+function LogIn() {
+  return (
+    <div>
+      <p>Log In Page</p>
+    </div>
+  );
 }
 
-export default LogIn
+export default LogIn;
