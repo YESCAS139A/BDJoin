@@ -3,6 +3,7 @@ import Input from "../../components/Input";
 import Label from "../../components/Label";
 import useRegister from "./hooks/useRegister";
 
+
 function Register() {
   const { loading, error, registerForm, setRegisterForm, handleSubmit } =
     useRegister();
