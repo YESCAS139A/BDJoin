@@ -1,7 +1,13 @@
 import { Outlet } from "react-router-dom";
+import TopBar from "../components/TopBar";
 
 const PrivateLayout = () => {
-    return <Outlet />;
+  return (
+    <>
+      <TopBar />
+      <Outlet />
+    </>
+  );
 };
 
 export default PrivateLayout;

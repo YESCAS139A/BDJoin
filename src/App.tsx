@@ -1,15 +1,13 @@
-import { Outlet } from 'react-router-dom'
-import './App.css'
-import TopBar from './components/TopBar'
+import { Outlet } from "react-router-dom";
+
+import "./App.css";
 
 function App() {
-
   return (
     <div className="flex flex-col min-h-screen w-full">
-      <TopBar /> 
-        <Outlet /> 
+      <Outlet />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

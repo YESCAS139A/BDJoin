@@ -1,34 +1,36 @@
 import axios from "axios";
 
+import { token } from "../lib/token";
+
 export const api = axios.create({
-    baseURL: "https://",
-    timeout: 10000,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL: "http://localhost:232923",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-        }
-    return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+  (config) => {
+    const currentToken = token.retrieve();
+
+    if (currentToken && config.headers) {
+      config.headers.Authorization = `Bearer ${currentToken}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
 );
 
-
 api.interceptors.response.use(
-    (response) => response,
-        (error) => {
-            if (error.response && error.response.status === 401) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-                }
-        return Promise.reject(error);
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      token.clear();
+      window.location.href = "/login";
     }
+    return Promise.reject(error);
+  },
 );

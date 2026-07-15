@@ -1,7 +1,7 @@
-export function isAuthenticated(): boolean {
+export const isAuthenticated = () => {
   const token = localStorage.getItem("token");
   return !!token;
-}
+};
 
 export function getToken(): string | null {
   return localStorage.getItem("token");
