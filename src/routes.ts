@@ -1,5 +1,4 @@
-// src/routes.ts
-import { createBrowserRouter} from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Home from "./Pages/Home/Home";
 import LogIn from "./Pages/LogIn/LogIn";
 import Register from "./Pages/Register/Register";
@@ -19,31 +18,29 @@ export const routes = createBrowserRouter([
         Component: App,
         ErrorBoundary: RouteErrorBoundary,
         children: [
-        {
-            Component: PublicLayout,
-            children: [
-                { index: true, Component: Landing },
-            ],
-        },
-        {
-            path: "auth",
-            Component: GuestOnlyLayout,
-            loader: redirectIfAuthenticated,
-            children: [
-                { path: "login", Component: LogIn },
-                { path: "register", Component: Register },
-            ],
-        },
-        {
-            Component: PrivateLayout,
-            loader: requireAuth,
-            children: [
-                { path: "home", Component: Home },
-            ],
-        },
-
-        { path: "403", Component: Forbidden },
-        { path: "*", Component: NotFound },
+            {
+                Component: PublicLayout,
+                children: [
+                    { index: true, Component: Landing },
+                ],
+            },
+            {
+                Component: GuestOnlyLayout,
+                loader: redirectIfAuthenticated,
+                children: [
+                    { path: "login", Component: LogIn },
+                    { path: "register", Component: Register },
+                ],
+            },
+            {
+                Component: PrivateLayout,
+                loader: requireAuth,
+                children: [
+                    { path: "home", Component: Home },
+                ],
+            },
+            { path: "403", Component: Forbidden },
+            { path: "*", Component: NotFound },
         ],
     },
 ]);
