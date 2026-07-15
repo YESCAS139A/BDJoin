@@ -1,4 +1,3 @@
-// src/Layouts/PublicLayout.tsx
 import { Outlet } from "react-router-dom";
 
 const PublicLayout = () => {
