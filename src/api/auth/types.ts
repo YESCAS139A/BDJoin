@@ -4,7 +4,7 @@ export interface AuthApi {
 }
 
 export type LoginPayload = {
-  email: string;
+  emailOrUser: string;
   password: string;
 };
 
