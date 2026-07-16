@@ -28,12 +28,12 @@ class AuthApi implements IAuthApi {
     console.log("Mock login con:", data);
 
     const validEmailOrUser =
-    data.emailOrUser === MOCK_USER.email ||
-    data.emailOrUser === MOCK_USER.userName;
+      data.emailOrUser === MOCK_USER.email ||
+      data.emailOrUser === MOCK_USER.userName;
 
     const ValidPassword = data.password === MOCK_USER.password;
 
-    if ( !validEmailOrUser || !ValidPassword) {
+    if (!validEmailOrUser || !ValidPassword) {
       throw new Error("Invalid email/user or password");
     }
 
