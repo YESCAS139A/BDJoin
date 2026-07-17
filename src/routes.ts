@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import Home from "./pages/Home/Home";
+import Profile from "./pages/profile/Profile";
 import LogIn from "./pages/LogIn/LogIn";
 import Register from "./pages/Register/Register";
 import NotFound from "./pages/NotFound/NotFound";
@@ -11,6 +12,8 @@ import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import { requireAuth, redirectIfAuthenticated } from "./api/authLoader";
 import Landing from "./pages/Landing/Landing";
+import Account from "./pages/account/Account";
+import Friends from "./pages/friends/Friends";
 
 export const routes = createBrowserRouter([
   {
@@ -33,7 +36,12 @@ export const routes = createBrowserRouter([
       {
         Component: PrivateLayout,
         loader: requireAuth,
-        children: [{ path: "home", Component: Home }],
+        children: [
+          { path: "home", Component: Home },
+          { path: "profile", Component: Profile },
+          { path: "account", Component: Account },
+          { path: "friends", Component: Friends },
+        ],
       },
       { path: "403", Component: Forbidden },
       { path: "*", Component: NotFound },
