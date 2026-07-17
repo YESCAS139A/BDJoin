@@ -5,6 +5,7 @@ import type {
   AuthApi as IAuthApi,
   LoginPayload,
   LoginResponse,
+  CurrentUser,
 } from "./types";
 
 const MOCK_USER = {
@@ -44,6 +45,22 @@ class AuthApi implements IAuthApi {
       username: MOCK_USER.userName,
       email: MOCK_USER.email,
       token: mockToken,
+    };
+  }
+
+  async getMe(): Promise<CurrentUser> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log("Mock getMe");
+
+    if (!token.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    return {
+      userName: MOCK_USER.userName,
+      email: MOCK_USER.email,
+      displayName: "usuario de prueba",
+      avatar: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIYyD47-CjBVKGcoo-cEZB36Xr-Wd6JMzBWfE7_QotYQ&s=10`,
     };
   }
 }

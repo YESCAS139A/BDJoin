@@ -113,11 +113,16 @@ function useRegister() {
     // }
   };
 
+  const handleCancel = () => {
+    navigate("/");
+  };
+
   return {
     loading,
     error,
-    handleSubmit,
     registerForm,
+    handleSubmit,
+    handleCancel,
     setRegisterForm,
   };
 }

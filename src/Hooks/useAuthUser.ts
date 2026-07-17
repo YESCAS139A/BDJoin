@@ -1,12 +1,13 @@
-export const isAuthenticated = () => {
-  const token = localStorage.getItem("token");
-  return !!token;
-};
+import { useContext } from "react";
 
-export function getToken(): string | null {
-  return localStorage.getItem("token");
+import { AuthContext } from "../api/auth/AuthContext";
+
+function useAuthUser() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuthUser debe usarse dentro de un AuthProvider");
+  }
+  return context;
 }
 
-export function logout(): void {
-  localStorage.removeItem("token");
-}
+export default useAuthUser;

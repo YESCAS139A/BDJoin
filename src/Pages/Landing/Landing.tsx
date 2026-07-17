@@ -7,10 +7,10 @@ const Landing = () => {
       <h1>Bienvenido</h1>
       <div>
         <Link to="/register">
-          <Button name="Registrarte" className="bg-black text-pink-500" />
+          <Button name="Register" className="bg-black text-pink-500" />
         </Link>
         <Link to="/login">
-          <Button name="Iniciar Sesión" />
+          <Button name="Log In" />
         </Link>
       </div>
     </div>

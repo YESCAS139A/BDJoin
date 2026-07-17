@@ -1,5 +1,3 @@
-import { CiUser } from "react-icons/ci";
-
 import useLogIn from "./hooks/useLogIn";
 import Label from "../../components/Label";
 import Input from "../../components/Input";
@@ -11,17 +9,16 @@ function LogIn() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 flex flex-col min-h-0">
+      <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800">Log In</h1>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="w-full max-h-[calc(100vh-140px)] overflow-y-auto space-y-4 bg-white p-4 md:p-6 rounded-xl border border-gray-200 shadow-sm pr-2 md:pr-4"
       >
-        <div className="w-50 h-50 rounded-full mx-auto bg-white border-5 border-gray-300 flex items-center justify-center">
-          <CiUser className="w-25 h-25 text-gray-600" />
-        </div>
-
-        <Label name="Email or user" />
+        <Label name="UserName or Email" />
         <Input
-          placeholder="Abraham@gmail.com or user2123"
+          placeholder="email@gmail.com"
           type="text"
           value={loginForm.emailOrUsername}
           onChange={(e) =>
@@ -35,7 +32,7 @@ function LogIn() {
 
         <Label name="Password" />
         <Input
-          placeholder="ex:123"
+          placeholder="User123"
           type="password"
           value={loginForm.password}
           onChange={(e) =>
@@ -45,10 +42,10 @@ function LogIn() {
         />
 
         <p className="h mt-8 flex gap-2">
-          <span className="font-medium">
+          <span className="font-medium font-sans">
             Sign up for an account if you don't have one
           </span>
-          <Link to="/Register" className="text-blue-500">
+          <Link to="/Register" className="text-blue-500 font-sans">
             Register
           </Link>
         </p>
