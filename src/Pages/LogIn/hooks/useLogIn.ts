@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import authApi from "../../../api/auth";
+import useAuthUser from "../../../hooks/useAuthUser";
 
 type LoginForm = {
   emailOrUsername: string;
@@ -16,6 +17,7 @@ const LOGIN_FORM: LoginForm = {
 function useLogIn() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { setUser } = useAuthUser();
 
   const [loginForm, setLoginForm] = useState<LoginForm>(LOGIN_FORM);
 
@@ -32,6 +34,10 @@ function useLogIn() {
         emailOrUser: loginForm.emailOrUsername,
         password: loginForm.password,
       });
+
+      const userData = await authApi.getMe();
+      setUser(userData);
+
       const redirectPath = searchParams.get("redirectTo") || "/home";
       navigate(redirectPath);
     } catch (err) {

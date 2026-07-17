@@ -41,7 +41,7 @@ function LogIn() {
           required
         />
 
-        <p className="h mt-8 flex gap-2">
+        <p className="mt-8 flex flex-col sm:flex-row gap-1 sm:gap-2 text-sm sm:text-base">
           <span className="font-medium font-sans">
             Sign up for an account if you don't have one
           </span>

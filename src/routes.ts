@@ -7,7 +7,6 @@ import NotFound from "./pages/NotFound/NotFound";
 import Forbidden from "./pages/Forbidden/Forbidden";
 import App from "./App";
 import RouteErrorBoundary from "./components/ErrorElement";
-import PublicLayout from "./layouts/PublicLayout";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import { requireAuth, redirectIfAuthenticated } from "./api/authLoader";
