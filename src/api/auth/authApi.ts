@@ -13,8 +13,7 @@ class AuthApi implements IAuthApi {
 
   async login(data: LoginPayload): Promise<LoginResponse> {
     const endpoint = this.route + "/login";
-    const response = await api.post<LoginResponse>(endpoint, { data });
-
+    const response = await api.post<LoginResponse>(endpoint, data);
     return response.data;
   }
 

@@ -1,13 +1,14 @@
 export interface LabelProps {
-    name: string;
+  name: string;
+  className?: string;
 }
 
-const Label = ({ name }: LabelProps) => {
-    return (
-        <div className="h-2 mb-5">
-            <label>{name}</label>
-        </div>
-    )
-}
+const Label = ({ name, className }: LabelProps) => {
+  return (
+    <div className={`h-2 mb-5 ${className}`}>
+      <label>{name}</label>
+    </div>
+  );
+};
 
-export default Label
+export default Label;

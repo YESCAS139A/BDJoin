@@ -49,13 +49,14 @@ function Register() {
               }
               placeholder="Last Name"
               required
+              disallowSpaces
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label name="UserName" />
+            <Label name="User name" />
             <Input
               value={registerForm.userName}
               onChange={(e) =>
@@ -64,8 +65,9 @@ function Register() {
                   userName: e.target.value,
                 }))
               }
-              placeholder="UserName"
+              placeholder="User name"
               required
+              disallowSpaces
             />
           </div>
 
@@ -79,6 +81,7 @@ function Register() {
               type="email"
               placeholder="Email@Example.com"
               required
+              disallowSpaces
             />
           </div>
         </div>
@@ -101,6 +104,7 @@ function Register() {
               placeholder="Example1234qa"
               type="password"
               required
+              disallowSpaces
             />
           </div>
 
@@ -117,6 +121,7 @@ function Register() {
               placeholder="Example1234qa"
               type="password"
               required
+              disallowSpaces
             />
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 export interface ButtonProps {
   name: string;
   type?: "submit" | "reset" | "button";
@@ -5,6 +7,7 @@ export interface ButtonProps {
   className?: string;
   onClick?: () => void;
   fullWidthOnMobile?: boolean;
+  nav?: string;
 }
 
 const Button = ({
@@ -14,12 +17,24 @@ const Button = ({
   className,
   onClick,
   fullWidthOnMobile = true,
+  nav,
 }: ButtonProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+    if (nav) {
+      navigate(nav);
+    }
+  };
+
   return (
     <button
       type={type}
       disabled={disabled}
-      onClick={onClick}
+      onClick={handleClick}
       className={`${fullWidthOnMobile ? "w-full sm:w-auto" : ""}px-4 sm:px-6 py-2 sm:py-2.5
         text-sm sm:text-base
         rounded-lg font-medium

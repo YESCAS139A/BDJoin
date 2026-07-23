@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
-import type { CurrentUser } from "./types";
-import authApi from ".";
-import { token } from "../../lib/token";
+import type { CurrentUser } from "../api/auth/types";
+import authApi from "../api/auth";
+import { token } from "../lib/token";
 
 export type AuthContextType = {
   user: CurrentUser | null;

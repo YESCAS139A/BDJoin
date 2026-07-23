@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import Home from "./pages/Home/Home";
 import Profile from "./pages/profile/Profile";
+import PublicProfile from "./pages/profile/PublicProfile";
 import LogIn from "./pages/LogIn/LogIn";
 import Register from "./pages/Register/Register";
 import NotFound from "./pages/NotFound/NotFound";
@@ -12,8 +13,9 @@ import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import { requireAuth, redirectIfAuthenticated } from "./api/authLoader";
 import Landing from "./pages/Landing/Landing";
-import Account from "./pages/account/Account";
 import Friends from "./pages/friends/Friends";
+import MyProfileAccount from "./pages/account/Account";
+import { publicProfileLoader } from "./api/publicProfileLoader";
 
 export const routes = createBrowserRouter([
   {
@@ -39,7 +41,12 @@ export const routes = createBrowserRouter([
         children: [
           { path: "home", Component: Home },
           { path: "profile", Component: Profile },
-          { path: "account", Component: Account },
+          {
+            path: "p/:username",
+            Component: PublicProfile,
+            loader: publicProfileLoader,
+          },
+          { path: "account", Component: MyProfileAccount },
           { path: "friends", Component: Friends },
         ],
       },

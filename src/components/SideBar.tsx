@@ -7,7 +7,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
-import { MdAccountCircle } from "react-icons/md";
+import { MdAccountCircle as MdAccountIcon } from "react-icons/md";
 import { RiAccountPinCircleFill } from "react-icons/ri";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
@@ -31,7 +31,7 @@ function SideBar() {
 
   const links = [
     { to: "/home", label: "Home", icon: <FaHome /> },
-    { to: "/profile", label: "Profile", icon: <MdAccountCircle /> },
+    { to: "/profile", label: "Profile", icon: <MdAccountIcon /> },
     { to: "/friends", label: "Friends", icon: <FaUserFriends /> },
     { to: "/account", label: "Account", icon: <RiAccountPinCircleFill /> },
   ];
@@ -110,11 +110,11 @@ function SideBar() {
             <li key={link.to}>
               <Link
                 to={link.to}
-                className={`flex items-center gap-4 px-4 py-3.5 text-xl font-bold rounded-2xl transition-all duration-200 group ${
+                className={`flex items-center px-4 py-3.5 text-xl font-bold rounded-2xl transition-all duration-200 group ${
                   isActive(link.to)
                     ? "bg-blue-300/70 text-slate-900"
                     : "text-slate-800 hover:bg-blue-300/50"
-                }`}
+                } ${isMenuOpen ? "gap-4" : "gap-0"}`}
               >
                 <span className="text-2xl text-slate-700 shrink-0">
                   {link.icon}
@@ -131,10 +131,13 @@ function SideBar() {
               </Link>
             </li>
           ))}
+
           <li>
             <button
               onClick={logout}
-              className="flex items-center gap-4 px-4 py-3.5 text-xl font-bold text-slate-800 hover:bg-red-100/50 rounded-2xl transition-all duration-200 group w-full"
+              className={`flex items-center px-4 py-3.5 text-xl font-bold text-slate-800 hover:bg-red-100/50 rounded-2xl transition-all duration-200 group w-full ${
+                isMenuOpen ? "gap-4" : "gap-0"
+              }`}
             >
               <span className="text-2xl text-slate-700 shrink-0">
                 <FaSignOutAlt />
