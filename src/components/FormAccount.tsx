@@ -1,6 +1,5 @@
-import { useState, type FormEvent } from "react";
-
 import type { MyProfile, UpdateMyProfile } from "../api/profile/types";
+import { useAccountForm } from "../hooks/useAccountForm";
 import Input from "./Input";
 import Label from "./Label";
 import TextArea from "./TextArea";
@@ -9,37 +8,40 @@ import Avatar from "./Avatar";
 type AccountProfileProps = {
   initialData: MyProfile;
   onSubmit: (data: UpdateMyProfile) => Promise<void>;
+  onCancel?: () => void;
   isSaving?: boolean;
 };
 
 function Account({
   initialData,
   onSubmit,
+  onCancel,
   isSaving = false,
 }: AccountProfileProps) {
-  const [name, setName] = useState(initialData.name ?? "");
-  const [lastName, setLastName] = useState(initialData.lastName ?? "");
-  const [profileImageUrl, setProfileImageUrl] = useState(
-    initialData.profileImageUrl ?? "",
-  );
-  const [biography, setBiography] = useState(initialData.biography ?? "");
-  const [birthday, setBirthday] = useState(initialData.birthday ?? "");
-  const [city, setCity] = useState(initialData.city ?? "");
-
-  const savedDisplayName =
-    `${initialData.name ?? ""} ${initialData.lastName ?? ""}`.trim();
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    await onSubmit({
-      name,
-      lastName,
-      profileImageUrl: profileImageUrl || undefined,
-      biography,
-      birthday,
-      city,
-    });
-  }
+  const {
+    name,
+    lastName,
+    profileImageUrl,
+    biography,
+    birthday,
+    city,
+    errors,
+    savedDisplayName,
+    setName,
+    setLastName,
+    setProfileImageUrl,
+    setBiography,
+    setBirthday,
+    setCity,
+    setErrors,
+    handleSubmit,
+    handleCancel,
+    handleRemoveAvatar,
+  } = useAccountForm({
+    initialData,
+    onSubmit,
+    onCancel,
+  });
 
   return (
     <form
@@ -47,18 +49,26 @@ function Account({
       className="w-full space-y-4 bg-white p-4 md:p-6 rounded-xl border border-gray-200 shadow-sm"
     >
       <div className="px-4 py-3 border-b border-gray-200">
-        <h1 className="text-center font-bold text-gray-700 text-lg">Profile</h1>
+        <h1 className="text-center font-bold text-gray-700 text-lg">
+          Edit Profile
+        </h1>
       </div>
+
+      {errors.server && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+          {errors.server}
+        </div>
+      )}
 
       <div className="flex items-center gap-4">
         <Avatar
-          src={initialData.profileImageUrl}
+          src={profileImageUrl || undefined}
           size="lg"
           className="w-24 h-24 rounded-full object-cover bg-gray-100"
         />
         <div className="flex flex-col justify-center leading-tight">
           <span className="text-base font-semibold text-gray-800">
-            {initialData.userName}
+            @{initialData.userName}
           </span>
           <span className="text-sm text-gray-500">
             {savedDisplayName || "Sin nombre"}
@@ -67,10 +77,10 @@ function Account({
         </div>
         <div className="flex flex-col justify-center leading-tight">
           <span className="text-sm text-gray-500">
-            birthday: {initialData.birthday}
+            Birthday: {initialData.birthday || "-"}
           </span>
           <span className="text-sm text-gray-500">
-            city: {initialData.city}
+            City: {initialData.city || "-"}
           </span>
         </div>
         <span className="text-sm text-gray-500">
@@ -79,10 +89,21 @@ function Account({
       </div>
 
       <div>
-        <Label
-          className="text-sm font-semibold text-gray-700"
-          name="Avatar Url"
-        />
+        <div className="flex items-center justify-between">
+          <Label
+            className="text-sm font-semibold text-gray-700"
+            name="Avatar Url"
+          />
+          {profileImageUrl && (
+            <button
+              type="button"
+              onClick={handleRemoveAvatar}
+              className="text-xs text-red-600 hover:underline font-medium"
+            >
+              Remove avatar
+            </button>
+          )}
+        </div>
         <Input
           type="text"
           value={profileImageUrl}
@@ -96,15 +117,24 @@ function Account({
         <div>
           <Label
             className="text-sm font-semibold text-gray-700"
-            name="First name"
+            name="First name *"
           />
           <Input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full mt-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            onChange={(e) => {
+              setName(e.target.value);
+              if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+            }}
+            className={`w-full mt-1 rounded-lg border px-3 py-2 text-sm ${
+              errors.name ? "border-red-500" : "border-gray-200"
+            }`}
           />
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+          )}
         </div>
+
         <div>
           <Label
             className="text-sm font-semibold text-gray-700"
@@ -118,6 +148,7 @@ function Account({
           />
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label
@@ -142,23 +173,41 @@ function Account({
         </div>
       </div>
 
-      <Label className="text-sm font-semibold text-gray-700" name="Biography" />
-      <TextArea
-        placeholder="Write something here..."
-        value={biography}
-        onChange={(e) => setBiography(e.target.value)}
-      />
+      <div>
+        <Label
+          className="text-sm font-semibold text-gray-700"
+          name="Biography"
+        />
+        <TextArea
+          placeholder="Write something here..."
+          value={biography}
+          onChange={(e) => {
+            setBiography(e.target.value);
+            if (errors.biography)
+              setErrors((prev) => ({ ...prev, biography: "" }));
+          }}
+        />
+        {errors.biography && (
+          <p className="text-red-500 text-xs mt-1">{errors.biography}</p>
+        )}
+      </div>
 
-      <div className="px-4 py-3 border-b border-gray-200">
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg disabled:opacity-50"
-          >
-            {isSaving ? "Saving..." : "Save changes"}
-          </button>
-        </div>
+      <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2 pt-4">
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={isSaving}
+          className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 transition-colors"
+        >
+          {isSaving ? "Saving..." : "Save changes"}
+        </button>
       </div>
     </form>
   );

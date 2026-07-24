@@ -40,19 +40,6 @@ function UserFeed({ posts = [] }: UserFeedProps) {
                 year: "numeric",
               })}
             </span>
-
-            <div className="flex gap-4">
-              {post.likesCount !== undefined && (
-                <span className="flex items-center gap-1 font-medium">
-                  ❤️ {post.likesCount}
-                </span>
-              )}
-              {post.commentsCount !== undefined && (
-                <span className="flex items-center gap-1 font-medium">
-                  💬 {post.commentsCount}
-                </span>
-              )}
-            </div>
           </div>
         </article>
       ))}

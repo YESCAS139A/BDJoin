@@ -47,7 +47,7 @@ const FormProfile = ({ data }: FormProfileProps) => {
                 {profile.userName}
               </span>
               <span className="text-xl font-bold text-gray-900">
-                {displayName || "Sin nombre"}
+                {displayName || "unnamed"}
               </span>
             </div>
           </div>
@@ -55,7 +55,7 @@ const FormProfile = ({ data }: FormProfileProps) => {
           <div>
             <Label
               className="text-sm font-semibold text-gray-700"
-              name="Biografía"
+              name="Biography"
             />
             <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-wrap">
               {profile.biography || "Sin biografía."}
@@ -66,7 +66,7 @@ const FormProfile = ({ data }: FormProfileProps) => {
             <div>
               <Label
                 className="text-sm font-semibold text-gray-700"
-                name="Fecha de Nacimiento"
+                name="Birthday"
               />
               <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800">
                 {profile.birthday || "-"}
@@ -75,7 +75,7 @@ const FormProfile = ({ data }: FormProfileProps) => {
             <div>
               <Label
                 className="text-sm font-semibold text-gray-700"
-                name="Ciudad"
+                name="City"
               />
               <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800">
                 {profile.city || "-"}
