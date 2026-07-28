@@ -16,6 +16,7 @@ import Landing from "./pages/Landing/Landing";
 import Friends from "./pages/friends/Friends";
 import MyProfileAccount from "./pages/account/Account";
 import { publicProfileLoader } from "./api/publicProfileLoader";
+import PublicLayout from "./layouts/PublicLayout";
 
 export const routes = createBrowserRouter([
   {
@@ -36,16 +37,21 @@ export const routes = createBrowserRouter([
         ],
       },
       {
-        Component: PrivateLayout,
-        loader: requireAuth,
+        Component: PublicLayout,
         children: [
-          { path: "home", Component: Home },
-          { path: "profile", Component: Profile },
           {
             path: "p/:username",
             Component: PublicProfile,
             loader: publicProfileLoader,
           },
+        ],
+      },
+      {
+        Component: PrivateLayout,
+        loader: requireAuth,
+        children: [
+          { path: "home", Component: Home },
+          { path: "profile", Component: Profile },
           { path: "account", Component: MyProfileAccount },
           { path: "friends", Component: Friends },
         ],

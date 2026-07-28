@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import profileApi from "../../api/profile";
 import type { MyProfile } from "../../api/profile/types";
-import FormProfile from "../../components/FormProfile";
+import FormProfile from "../../components/Profile";
 
 function Profile() {
   const [profile, setProfile] = useState<MyProfile | null>(null);

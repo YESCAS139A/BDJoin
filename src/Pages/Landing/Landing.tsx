@@ -4,18 +4,6 @@ import Button from "../../components/Button";
 const Landing = () => {
   return (
     <div className="w-full min-h-screen flex flex-col">
-      <header className="w-full max-w-6xl mx-auto p-4 flex justify-between items-center gap-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">BDJoin</h2>
-        <div className="flex gap-2 sm:gap-3">
-          <Link to="/login">
-            <Button name="Log In" />
-          </Link>
-          <Link to="/register">
-            <Button name="Register" />
-          </Link>
-        </div>
-      </header>
-
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-8 md:px-16 lg:px-24 py-8">
         <div className="max-w-3xl">
           <h1 className="font-serif text-gray-900 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
@@ -26,6 +14,14 @@ const Landing = () => {
             whatever topics you like, and view both your friends' posts and your
             own.
           </p>
+        </div>
+        <div className="flex gap-2 sm:gap-3">
+          <Link to="/login">
+            <Button name="Log In" />
+          </Link>
+          <Link to="/register">
+            <Button name="Register" />
+          </Link>
         </div>
       </div>
     </div>

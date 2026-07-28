@@ -25,8 +25,16 @@ class ProfileApi implements IProfileApi {
       const response = await api.get<UserProfile>(endpoint);
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        throw new ProfileNotFoundError(userName);
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 404) {
+          throw new ProfileNotFoundError(userName);
+        }
+
+        if (status === 401 || status === 403) {
+          throw new ProfileNotFoundError(userName);
+        }
       }
       throw error;
     }

@@ -10,7 +10,7 @@ export type ProfileAction =
   | "manage_account";
 
 export function getProfileActions(
-  status: RelationshipStatus | null,
+  status: RelationshipStatus | null | undefined,
 ): ProfileAction[] {
   if (status === null) return ["edit_profile", "manage_account"];
 
@@ -23,5 +23,7 @@ export function getProfileActions(
       return ["accept_request", "reject_request"];
     case "Friends":
       return ["remove_friend"];
+    default:
+      return [];
   }
 }

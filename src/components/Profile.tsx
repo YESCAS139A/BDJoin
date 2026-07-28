@@ -9,11 +9,11 @@ type UserInfoData = {
   initialData?: MyProfile;
 };
 
-type FormProfileProps = {
+type ProfileProps = {
   data?: UserInfoData | MyProfile;
 };
 
-const FormProfile = ({ data }: FormProfileProps) => {
+const Profile = ({ data }: ProfileProps) => {
   const profile = (data && "initialData" in data ? data.initialData : data) as
     | MyProfile
     | undefined;
@@ -58,7 +58,7 @@ const FormProfile = ({ data }: FormProfileProps) => {
               name="Biography"
             />
             <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-wrap">
-              {profile.biography || "Sin biografía."}
+              {profile.biography || "No biography."}
             </div>
           </div>
 
@@ -92,10 +92,10 @@ const FormProfile = ({ data }: FormProfileProps) => {
 
       <div className="space-y-3">
         <h2 className="text-lg font-bold text-gray-800">My Posts</h2>
-        <UserFeed />
+        <UserFeed userName={profile.userName} showOwnerActions={true} />
       </div>
     </div>
   );
 };
 
-export default FormProfile;
+export default Profile;

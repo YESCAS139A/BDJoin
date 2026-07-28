@@ -12,18 +12,16 @@ function RecentFriends({ friends = [] }: RecentFriendsProps) {
     return (
       <div className="mt-4">
         <p className="text-sm font-semibold text-gray-700 mb-2">
-          Amigos recientes
+          Recent Friends
         </p>
-        <p className="text-sm text-gray-400">Sin amigos recientes.</p>
+        <p className="text-sm text-gray-400">No recent friends.</p>
       </div>
     );
   }
 
   return (
     <div className="mt-4">
-      <p className="text-sm font-semibold text-gray-700 mb-2">
-        Amigos recientes
-      </p>
+      <p className="text-sm font-semibold text-gray-700 mb-2">Recent Friends</p>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 bg-gray-50 border border-gray-100 rounded-lg p-3">
         {friends.map((friend) => (
           <Link

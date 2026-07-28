@@ -68,7 +68,7 @@ function Account({
         />
         <div className="flex flex-col justify-center leading-tight">
           <span className="text-base font-semibold text-gray-800">
-            @{initialData.userName}
+            {initialData.userName}
           </span>
           <span className="text-sm text-gray-500">
             {savedDisplayName || "Sin nombre"}
@@ -83,9 +83,6 @@ function Account({
             City: {initialData.city || "-"}
           </span>
         </div>
-        <span className="text-sm text-gray-500">
-          Friends: {initialData.friendsCount}
-        </span>
       </div>
 
       <div>

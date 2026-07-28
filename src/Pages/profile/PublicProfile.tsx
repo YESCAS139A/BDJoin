@@ -1,4 +1,5 @@
 import { useLoaderData, useParams, useRevalidator } from "react-router-dom";
+
 import profileApi from "../../api/profile";
 import type { UserProfile } from "../../api/profile/types";
 import ProfileView from "../../components/ProfileView";

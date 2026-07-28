@@ -62,7 +62,7 @@ const MOCK_USERS: Record<string, MockUser> = {
         profileImageUrl: "https://i.pravatar.cc/150?u=pedro",
       },
     ],
-    relationshipStatus: "Friends",
+    relationshipStatus: "None",
     birthday: "14-feb-2000",
     city: "hermosillo",
   },
@@ -74,7 +74,7 @@ const MOCK_USERS: Record<string, MockUser> = {
     profileImageUrl: "https://i.pravatar.cc/150?u=ana",
     createdAt: "2024-02-01T00:00:00Z",
     friendsCount: 12,
-    biography: "hola",
+    biography: "Hola soy Ana",
     recentFriends: [],
     relationshipStatus: "Friends",
   },
@@ -113,7 +113,7 @@ const MOCK_USERS: Record<string, MockUser> = {
   },
 };
 
-function delay<T>(value: T, ms = 500): Promise<T> {
+function delay<T>(value: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
 }
 
@@ -139,10 +139,26 @@ class MockProfileApi implements ProfileApi {
 
   async userProfile(userName: string): Promise<UserProfile> {
     await delay(null);
-    const user = MOCK_USERS[userName];
-    if (!user) throw new ProfileNotFoundError(userName);
 
-    const isSelf = userName === CURRENT_USERNAME && token.isAuthenticated();
+    const userKey = Object.keys(MOCK_USERS).find(
+      (k) => k.toLowerCase() === userName.toLowerCase(),
+    );
+
+    if (!userKey) {
+      throw new ProfileNotFoundError(userName);
+    }
+
+    const user = MOCK_USERS[userKey];
+    const isAuthenticated = token.isAuthenticated();
+    const isSelf = userKey === CURRENT_USERNAME && isAuthenticated;
+
+    let computedStatus: RelationshipStatus | null = user.relationshipStatus;
+
+    if (isSelf) {
+      computedStatus = null;
+    } else if (!isAuthenticated) {
+      computedStatus = "None";
+    }
 
     return {
       userName: user.userName,
@@ -150,7 +166,7 @@ class MockProfileApi implements ProfileApi {
       lastName: user.lastName,
       profileImageUrl: user.profileImageUrl,
       biography: user.biography,
-      relationshipStatus: isSelf ? null : user.relationshipStatus,
+      relationshipStatus: computedStatus,
       friendsCount: user.friendsCount,
       recentFriends: user.recentFriends,
     };
@@ -211,7 +227,10 @@ class MockProfileApi implements ProfileApi {
     await delay(undefined);
     if (MOCK_USERS[userName]) {
       MOCK_USERS[userName].relationshipStatus = "None";
-      MOCK_USERS[userName].friendsCount -= 1;
+      MOCK_USERS[userName].friendsCount = Math.max(
+        0,
+        MOCK_USERS[userName].friendsCount - 1,
+      );
     }
   }
 }

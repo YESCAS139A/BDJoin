@@ -16,10 +16,10 @@ type ProfileViewProps = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  None: "Usuario común",
-  PendingSent: "Solicitud enviada",
-  PendingReceived: "Te envió una solicitud",
-  Friends: "Son amigos",
+  None: "Regular user",
+  PendingSent: "Application submitted",
+  PendingReceived: "He sent you a request",
+  Friends: "They're friends",
 };
 
 function ProfileView({
@@ -30,11 +30,15 @@ function ProfileView({
   onRejectRequest,
   onRemoveFriend,
 }: ProfileViewProps) {
-  const actions = getProfileActions(profile.relationshipStatus);
+  const actions = getProfileActions(profile.relationshipStatus) ?? [];
+
+  const isSelf = profile.relationshipStatus === null;
+
+  const displayName = `${profile.name ?? ""} ${profile.lastName ?? ""}`.trim();
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-200 shadow-sm">
+    <div className="max-w-2xl mx-auto space-y-6 p-4">
+      <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center gap-4">
           <Avatar
             src={profile.profileImageUrl}
@@ -42,70 +46,112 @@ function ProfileView({
             className="border border-gray-200"
           />
           <div className="flex flex-col justify-center leading-tight">
-            <span className="text-base font-semibold text-gray-800">
-              {profile.name} {profile.lastName}
+            <span className="text-lg font-bold text-gray-900">
+              {displayName || profile.userName}
             </span>
             <span className="text-sm text-gray-500">@{profile.userName}</span>
-            <span className="text-sm text-gray-500">
-              Friends: {profile.friendsCount}
+            <span className="text-xs text-gray-500 mt-1 font-medium">
+              Friends: {profile.friendsCount ?? 0}
             </span>
           </div>
         </div>
 
         {profile.biography && (
-          <p className="text-sm text-gray-600 mt-3">{profile.biography}</p>
+          <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-line">
+            {profile.biography}
+          </p>
         )}
 
-        {profile.relationshipStatus !== null && (
-          <span className="inline-block mt-3 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
-            {STATUS_LABELS[profile.relationshipStatus]}
-          </span>
+        {!isSelf && profile.relationshipStatus && (
+          <div>
+            <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+              {STATUS_LABELS[profile.relationshipStatus] || "Desconocido"}
+            </span>
+          </div>
         )}
 
         <RecentFriends friends={profile.recentFriends} />
 
-        <div className="flex gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
           {actions.includes("add_friend") && (
-            <button onClick={onSendRequest} className="...">
-              Add friend
+            <button
+              onClick={onSendRequest}
+              className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
+            >
+              Add a friend
             </button>
           )}
+
           {actions.includes("cancel_request") && (
-            <button onClick={onCancelRequest} className="...">
-              Cancel request
+            <button
+              onClick={onCancelRequest}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel Request
             </button>
           )}
+
           {actions.includes("accept_request") && (
-            <button onClick={onAcceptRequest} className="...">
-              Accept
+            <button
+              onClick={onAcceptRequest}
+              className="px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm"
+            >
+              Accept Request
             </button>
           )}
+
           {actions.includes("reject_request") && (
-            <button onClick={onRejectRequest} className="...">
+            <button
+              onClick={onRejectRequest}
+              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+            >
               Reject
             </button>
           )}
+
           {actions.includes("remove_friend") && (
-            <button onClick={onRemoveFriend} className="...">
-              Remove friend
+            <button
+              onClick={onRemoveFriend}
+              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+            >
+              Remove from my friends
             </button>
           )}
+
           {actions.includes("edit_profile") && (
-            <Link to="/account" className="...">
-              Edit profile
+            <Link
+              to="/account"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Edit Profile
             </Link>
           )}
+
           {actions.includes("manage_account") && (
-            <Link to="/account" className="...">
-              Manage account
+            <Link
+              to="/account"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Manage Account
             </Link>
           )}
         </div>
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-bold text-gray-800">Feed</h2>
-        <UserFeed />
+        <h2 className="text-lg font-bold text-gray-800">
+          {isSelf ? "My Posts" : `Publications by @${profile.userName}`}
+        </h2>
+
+        <UserFeed
+          userName={profile.userName}
+          showOwnerActions={isSelf}
+          emptyMessage={
+            isSelf
+              ? "You haven't posted anything yet."
+              : "This user hasn't posted anything yet."
+          }
+        />
       </div>
     </div>
   );
