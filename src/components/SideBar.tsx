@@ -12,6 +12,7 @@ import { RiAccountPinCircleFill } from "react-icons/ri";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 import useLogout from "../hooks/useLogout";
+import { BsPostcardFill } from "react-icons/bs";
 
 function SideBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,6 +35,7 @@ function SideBar() {
     { to: "/profile", label: "Profile", icon: <MdAccountIcon /> },
     { to: "/friends", label: "Friends", icon: <FaUserFriends /> },
     { to: "/account", label: "Account", icon: <RiAccountPinCircleFill /> },
+    { to: "/post", label: "Posts", icon: <BsPostcardFill /> },
   ];
 
   return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import postApi from "../api/post";
 import type { Post } from "../api/post/types";
@@ -36,9 +37,18 @@ function UserFeed({
   }, [userName, reloadKey]);
 
   async function handleDelete(postId: number) {
-    await postApi.deletePost(postId);
-    setPosts(null);
-    setReloadKey((key) => key + 1);
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this post?",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await postApi.deletePost(postId);
+      setPosts(null);
+      setReloadKey((key) => key + 1);
+    } catch {
+      alert("Failed to delete post. Please try again.");
+    }
   }
 
   if (posts === null) {
@@ -65,36 +75,47 @@ function UserFeed({
         return (
           <article
             key={post.id}
-            className="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm space-y-3"
+            className="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-sm space-y-3 hover:border-gray-300 transition-colors"
           >
             <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900 text-sm md:text-base">
+              <Link
+                to={`/p/${post.authorUserName}`}
+                className="flex items-center gap-2 group cursor-pointer"
+              >
+                <span className="font-semibold text-gray-900 text-sm md:text-base group-hover:text-blue-600 transition-colors">
                   {post.author || post.authorUserName}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 group-hover:underline">
                   @{post.authorUserName}
                 </span>
-              </div>
+              </Link>
             </div>
 
-            <p className="text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line">
-              {post.content}
-            </p>
+            <Link
+              to={`/posts/${post.id}`}
+              className="block group cursor-pointer"
+            >
+              <p className="text-gray-800 text-sm md:text-base leading-relaxed whitespace-pre-line group-hover:text-gray-900">
+                {post.content}
+              </p>
+            </Link>
 
             <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-              <span>
+              <Link
+                to={`/posts/${post.id}`}
+                className="hover:underline text-gray-400 hover:text-gray-600"
+              >
                 {new Date(post.createdDate).toLocaleDateString("es-ES", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
                 })}
-              </span>
+              </Link>
 
               {showOwnerActions && isOwner && (
                 <button
                   onClick={() => handleDelete(post.id)}
-                  className="text-red-600 hover:text-red-800 font-medium transition-colors"
+                  className="text-red-600 hover:text-red-800 font-medium transition-colors cursor-pointer"
                 >
                   Delete
                 </button>

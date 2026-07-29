@@ -1,22 +1,24 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Home from "./pages/Home/Home";
+import Home from "./pages/home/Home";
 import Profile from "./pages/profile/Profile";
 import PublicProfile from "./pages/profile/PublicProfile";
 import LogIn from "./pages/LogIn/LogIn";
 import Register from "./pages/Register/Register";
-import NotFound from "./pages/NotFound/NotFound";
-import Forbidden from "./pages/Forbidden/Forbidden";
+import NotFound from "./pages/notFound/NotFound";
+import Forbidden from "./pages/forbidden/Forbidden";
 import App from "./App";
 import RouteErrorBoundary from "./components/ErrorElement";
 import GuestOnlyLayout from "./layouts/GuestOnlyLayout";
 import PrivateLayout from "./layouts/PrivateLayout";
 import { requireAuth, redirectIfAuthenticated } from "./api/authLoader";
-import Landing from "./pages/Landing/Landing";
+import Landing from "./pages/landing/Landing";
 import Friends from "./pages/friends/Friends";
 import MyProfileAccount from "./pages/account/Account";
 import { publicProfileLoader } from "./api/publicProfileLoader";
 import PublicLayout from "./layouts/PublicLayout";
+import Post from "./pages/post/Post";
+import PostDetail from "./pages/post/PostDetail";
 
 export const routes = createBrowserRouter([
   {
@@ -54,6 +56,8 @@ export const routes = createBrowserRouter([
           { path: "profile", Component: Profile },
           { path: "account", Component: MyProfileAccount },
           { path: "friends", Component: Friends },
+          { path: "post", Component: Post },
+          { path: "posts/:postId", Component: PostDetail },
         ],
       },
       { path: "403", Component: Forbidden },
