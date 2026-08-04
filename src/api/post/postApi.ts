@@ -7,11 +7,12 @@ import {
   type CreatePost,
   type UpdatePost,
   PostNotFoundError,
+  type SortOrder,
 } from "./types";
 import type { PaginatedResponse } from "../../lib/pagination";
 
 class PostApi implements IPostApi {
-  private route = "/posts";
+  private route = "/Api/Post";
 
   async createPost(data: CreatePost): Promise<Post> {
     const response = await api.post<Post>(this.route, data);
@@ -42,9 +43,19 @@ class PostApi implements IPostApi {
   }
 
   async getHomeFeed(page = 1): Promise<PaginatedResponse<Post>> {
+    const response = await api.get<PaginatedResponse<Post>>(`/api/Feed`, {
+      params: { page },
+    });
+    return response.data;
+  }
+
+  async getFeedFriends(
+    page = 1,
+    sort: SortOrder = "asc",
+  ): Promise<PaginatedResponse<Post>> {
     const response = await api.get<PaginatedResponse<Post>>(
-      `${this.route}/feed`,
-      { params: { page } },
+      `/api/Feed/friends`,
+      { params: { page, sort } },
     );
     return response.data;
   }

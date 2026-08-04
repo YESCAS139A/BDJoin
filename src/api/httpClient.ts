@@ -3,8 +3,8 @@ import axios from "axios";
 import { token } from "../lib/token";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5173",
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -28,8 +28,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      token.clear();
-      window.location.href = "/login";
+      const isAuthPath =
+        window.location.pathname.startsWith("/login") ||
+        window.location.pathname.startsWith("/register");
+
+      if (!isAuthPath) {
+        token.clear();
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

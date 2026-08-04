@@ -1,7 +1,7 @@
 //mock
-import mockProfileApi from "./mockProfileApi";
+//import mockProfileApi from "./mockProfileApi";
 
 //api
-//import profileApi from "./profileApi";
+import profileApi from "./profileApi";
 
-export default mockProfileApi;
+export default profileApi;

@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from "react";
 import type { MyProfile, UpdateMyProfile } from "../api/profile/types";
+import useAuthUser from "./useAuthUser";
 
 type UseAccountFormProps = {
   initialData: MyProfile;
-  onSubmit: (data: UpdateMyProfile) => Promise<void>;
+  onSubmit: (data: UpdateMyProfile) => Promise<MyProfile>;
   onCancel?: () => void;
 };
 
@@ -12,6 +13,8 @@ export function useAccountForm({
   onSubmit,
   onCancel,
 }: UseAccountFormProps) {
+  const { setUser } = useAuthUser();
+
   const [name, setName] = useState(initialData.name ?? "");
   const [lastName, setLastName] = useState(initialData.lastName ?? "");
   const [profileImageUrl, setProfileImageUrl] = useState(
@@ -19,8 +22,9 @@ export function useAccountForm({
   );
   const [biography, setBiography] = useState(initialData.biography ?? "");
   const [birthday, setBirthday] = useState(initialData.birthday ?? "");
-  const [city, setCity] = useState(initialData.city ?? "");
+  const [city, setCity] = useState(""); // sin valor inicial: el backend no lo devuelve
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const savedDisplayName =
     `${initialData.name ?? ""} ${initialData.lastName ?? ""}`.trim();
@@ -31,7 +35,7 @@ export function useAccountForm({
     setProfileImageUrl(initialData.profileImageUrl ?? "");
     setBiography(initialData.biography ?? "");
     setBirthday(initialData.birthday ?? "");
-    setCity(initialData.city ?? "");
+    setCity("");
     setErrors({});
     if (onCancel) onCancel();
   }
@@ -44,11 +48,11 @@ export function useAccountForm({
     const newErrors: Record<string, string> = {};
 
     if (!name.trim()) {
-      newErrors.name = "El nombre es obligatorio.";
+      newErrors.name = "A name is required.";
     }
 
     if (biography.length > 200) {
-      newErrors.biography = "La biografía no puede superar los 200 caracteres.";
+      newErrors.biography = "The biography cannot exceed 200 characters.";
     }
 
     setErrors(newErrors);
@@ -59,20 +63,35 @@ export function useAccountForm({
     e.preventDefault();
     if (!validate()) return;
 
+    setIsSubmitting(true);
+    setErrors({});
+
     try {
-      await onSubmit({
+      const updatedProfile = await onSubmit({
         name,
         lastName,
         profileImageUrl: profileImageUrl || undefined,
-        biography,
-        birthday,
-        city,
+        biography: biography || undefined,
+        birthday: birthday || undefined, // YYYY-MM-DD, del <input type="date">
+        city: city || undefined,
       });
-    } catch {
+
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              avatar: updatedProfile.profileImageUrl,
+            }
+          : prev,
+      );
+    } catch (err) {
+      console.error("Error al actualizar el perfil:", err);
       setErrors((prev) => ({
         ...prev,
-        server: "Ocurrió un error al guardar los cambios.",
+        server: "An error occurred while saving the changes.",
       }));
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -84,6 +103,7 @@ export function useAccountForm({
     birthday,
     city,
     errors,
+    isSubmitting,
     savedDisplayName,
     setName,
     setLastName,

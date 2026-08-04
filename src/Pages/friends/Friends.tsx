@@ -1,7 +1,11 @@
+import SearchUsers from "../../components/SearchUsers";
+import UserFeed from "../../components/UserFeed";
+
 function Friends() {
   return (
-    <div>
-      <h1>friends</h1>
+    <div className="space-y-6">
+      <SearchUsers />
+      <UserFeed feedType="friends" showSortControl={true} />
     </div>
   );
 }

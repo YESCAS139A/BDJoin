@@ -1,5 +1,4 @@
 import useAuthUser from "../hooks/useAuthUser";
-
 import { CiUser } from "react-icons/ci";
 
 const TopBar = () => {
@@ -10,26 +9,34 @@ const TopBar = () => {
       <p className="font-bold text-gray-700 text-lg">BDJoin</p>
       <nav className="flex gap-4">
         {isLoading ? (
-          <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-        ) : (
           <div className="flex items-center gap-2">
-            {user?.avatar ? (
+            <div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse" />
+            <div className="flex flex-col gap-1">
+              <div className="w-20 h-3 bg-gray-300 rounded animate-pulse" />
+              <div className="w-12 h-2 bg-gray-300 rounded animate-pulse" />
+            </div>
+          </div>
+        ) : user ? (
+          <div className="flex items-center gap-2">
+            {user.avatar ? (
               <img
                 src={user.avatar}
                 alt={user.userName}
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-8 h-8 rounded-full object-cover border border-blue-200"
               />
             ) : (
-              <CiUser className="w-8 h-8 text-gray-600" />
+              <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center">
+                <CiUser className="w-6 h-6 text-gray-700" />
+              </div>
             )}
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-medium text-gray-700">
-                {user?.displayName}
+              <span className="text-sm font-semibold text-gray-800">
+                {user.displayName}
               </span>
-              <span className="text-xs text-gray-500">{user?.userName}</span>
+              <span className="text-xs text-gray-500">@{user.userName}</span>
             </div>
           </div>
-        )}
+        ) : null}
       </nav>
     </div>
   );

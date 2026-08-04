@@ -49,7 +49,6 @@ function Register() {
               }
               placeholder="Last Name"
               required
-              disallowSpaces
             />
           </div>
         </div>

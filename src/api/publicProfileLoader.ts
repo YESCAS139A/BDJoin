@@ -1,5 +1,5 @@
 import { type LoaderFunctionArgs } from "react-router-dom";
-import mockProfileApi from "./profile/index";
+import profileApi from "./profile";
 import { type UserProfile, ProfileNotFoundError } from "./profile/types";
 
 export async function publicProfileLoader({
@@ -9,7 +9,7 @@ export async function publicProfileLoader({
   if (!username) throw new Response("Not Found", { status: 404 });
 
   try {
-    return await mockProfileApi.userProfile(username);
+    return await profileApi.userProfile(username);
   } catch (error) {
     if (error instanceof ProfileNotFoundError) {
       throw new Response("Perfil no encontrado", { status: 404 });

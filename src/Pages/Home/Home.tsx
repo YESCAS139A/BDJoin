@@ -3,6 +3,7 @@ import { useState } from "react";
 import UserFeed from "../../components/UserFeed";
 import FormPost from "../../components/FormPost";
 import postApi from "../../api/post";
+import SearchUsers from "../../components/SearchUsers";
 
 const Home = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -14,6 +15,7 @@ const Home = () => {
 
   return (
     <div className="space-y-6">
+      <SearchUsers />
       <FormPost onSubmitPost={handleCreatePost} />
       <UserFeed
         key={refreshKey}

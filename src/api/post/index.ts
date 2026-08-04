@@ -1,7 +1,7 @@
 //mock
-import mockPost from "./mockPost";
+//import mockPost from "./mockPost";
 
 //api
-//import postApi from "./postApi";
+import postApi from "./postApi";
 
-export default mockPost;
+export default postApi;

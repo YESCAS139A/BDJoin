@@ -19,11 +19,12 @@ function MyProfileAccount() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  async function handleSubmit(data: UpdateMyProfile) {
+  async function handleSubmit(data: UpdateMyProfile): Promise<MyProfileType> {
     setIsSaving(true);
     try {
       const updated = await profileApi.updateMyProfile(data);
       setProfile(updated);
+      return updated; // <- esto es lo que faltaba
     } finally {
       setIsSaving(false);
     }

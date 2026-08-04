@@ -1,13 +1,11 @@
 export interface AuthApi {
   register(data: RegisterPayload): Promise<RegisterResponse>;
   login(data: LoginPayload): Promise<LoginResponse>;
-  getMe(): Promise<CurrentUser>;
 }
 
-export type LoginPayload = {
-  emailOrUser: string;
-  password: string;
-};
+export type LoginPayload =
+  | { username: string; email?: never; password: string }
+  | { email: string; username?: never; password: string };
 
 export type LoginResponse = {
   username: string;
@@ -18,18 +16,17 @@ export type LoginResponse = {
 export type CurrentUser = {
   userName: string;
   email: string;
-  displayName: string;
   avatar?: string;
 };
 
 // Input de /auth/register
 export type RegisterPayload = {
   name: string;
-  lastName: string;
-  userName: string;
+  lastname: string;
+  username: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  repeatPassword: string;
 };
 
 // Output de /auth/register

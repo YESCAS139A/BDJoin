@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import authApi from "../../../api/auth";
 
@@ -77,40 +78,37 @@ function useRegister() {
     try {
       await authApi.register({
         name: registerForm.name,
-        lastName: registerForm.lastName,
+        lastname: registerForm.lastName,
+        username: registerForm.userName,
         email: registerForm.email,
-        userName: registerForm.userName,
         password: registerForm.password,
-        confirmPassword: registerForm.repeatPassword,
+        repeatPassword: registerForm.repeatPassword,
       });
+
       navigate("/login");
     } catch (err) {
-      console.error(err);
+      console.error("Registration error:", err);
+
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const data = err.response.data;
+
+        if (typeof data === "string") {
+          setError(data);
+        } else if (data.errors) {
+          const firstErrorKey = Object.keys(data.errors)[0];
+          const firstErrorMessage = data.errors[firstErrorKey]?.[0];
+          setError(firstErrorMessage || "Validation error in submitted fields");
+        } else if (data.message) {
+          setError(data.message);
+        } else {
+          setError("Invalid request format");
+        }
+      } else {
+        setError("An unexpected error occurred during registration");
+      }
     } finally {
       setLoading(false);
     }
-
-    // try {
-    //   const { token } = await mockRegister({
-    //     name,
-    //     lastName,
-    //     userName,
-    //     email,
-    //     password,
-    //   });
-    //   localStorage.setItem("token", token);
-    //   resetForm();
-    //   navigate("/login");
-    // } catch (err) {
-    //   console.error("Registration error:", err);
-    //   const message =
-    //     err instanceof Error
-    //       ? err.message
-    //       : "There were problems when you signed up";
-    //   setError(message);
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
   const handleCancel = () => {

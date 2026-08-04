@@ -7,7 +7,7 @@ import Avatar from "./Avatar";
 
 type AccountProfileProps = {
   initialData: MyProfile;
-  onSubmit: (data: UpdateMyProfile) => Promise<void>;
+  onSubmit: (data: UpdateMyProfile) => Promise<MyProfile>;
   onCancel?: () => void;
   isSaving?: boolean;
 };
@@ -78,9 +78,6 @@ function Account({
         <div className="flex flex-col justify-center leading-tight">
           <span className="text-sm text-gray-500">
             Birthday: {initialData.birthday || "-"}
-          </span>
-          <span className="text-sm text-gray-500">
-            City: {initialData.city || "-"}
           </span>
         </div>
       </div>
@@ -153,7 +150,7 @@ function Account({
             name="Your birthday"
           />
           <Input
-            type="text"
+            type="date"
             value={birthday}
             onChange={(e) => setBirthday(e.target.value)}
             className="w-full mt-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
@@ -165,6 +162,7 @@ function Account({
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
+            placeholder="No se puede mostrar el valor guardado"
             className="w-full mt-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
           />
         </div>

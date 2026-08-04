@@ -1,8 +1,13 @@
-// Interface que nos ayuda a definir como contraro y que las dos de afuerzas tengan los mismos metodos asi pueden ser intercambiable entre mock y api real
+import type { PaginatedResponse } from "../../lib/pagination";
+
 export interface ProfileApi {
   myProfile(): Promise<MyProfile>;
   userProfile(username: string): Promise<UserProfile>;
   updateMyProfile(data: UpdateMyProfile): Promise<MyProfile>;
+  searchUsers(
+    query: string,
+    page?: number,
+  ): Promise<PaginatedResponse<UserSearchResult>>;
   sendFriendRequest(username: string): Promise<void>;
   cancelFriendRequest(username: string): Promise<void>;
   acceptFriendRequest(username: string): Promise<void>;
@@ -10,43 +15,47 @@ export interface ProfileApi {
   removeFriend(username: string): Promise<void>;
 }
 
-//Tipo de relacion con los usuarios
+export type UserSearchResult = {
+  userName: string;
+  name?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  relationshipStatus: RelationshipStatus | null;
+};
+
 export type RelationshipStatus =
   | "None"
   | "PendingSent"
   | "PendingReceived"
   | "Friends";
 
-//output de perfil propio
+// output de perfil propio — GET /Api/Users/me (confirmado por swagger)
 export type MyProfile = {
+  userId: string;
   userName: string;
   email: string;
   name?: string;
   lastName?: string;
-  profileImageUrl?: string;
-  createdAt: string;
   biography?: string;
-  friendsCount: number;
-  recentFriends: FriendSummaryResponse[];
+  profileImageUrl?: string;
   birthday?: string;
-  city?: string;
+  recentFriends: FriendSummaryResponse[];
+  createdAt: string;
 };
 
-//Tipo que obtendra los 5 amigos mas recientes agg
 export type FriendSummaryResponse = {
   userName: string;
   name?: string;
-  lastName?: string;
   profileImageUrl?: string;
 };
 
-//output de perfil publico
+// output de perfil público — pendiente de confirmar con swagger real
 export type UserProfile = {
   userName: string;
   name?: string;
   lastName?: string;
   profileImageUrl?: string;
-  relationshipStatus: RelationshipStatus | null; //null es para el perfil propio
+  relationshipStatus: RelationshipStatus | null;
   biography?: string;
   friendsCount: number;
   recentFriends: FriendSummaryResponse[];
@@ -54,7 +63,9 @@ export type UserProfile = {
   city?: string;
 };
 
-//input de perfil de dueño
+// input de actualización — PATCH /Api/Profile/me
+// city se manda (mapea a "location" en el body real), pero el backend
+// no lo devuelve al leer /Api/Users/me, así que no se puede prellenar.
 export type UpdateMyProfile = {
   name: string;
   lastName: string;
@@ -64,7 +75,6 @@ export type UpdateMyProfile = {
   city?: string;
 };
 
-//mensaje de error si el perfil no existe
 export class ProfileNotFoundError extends Error {
   constructor(username: string) {
     super(`Profile not found: ${username}`);

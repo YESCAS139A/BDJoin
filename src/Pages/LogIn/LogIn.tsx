@@ -16,9 +16,9 @@ function LogIn() {
         onSubmit={handleSubmit}
         className="w-full max-h-[calc(100vh-140px)] overflow-y-auto space-y-4 bg-white p-4 md:p-6 rounded-xl border border-gray-200 shadow-sm pr-2 md:pr-4"
       >
-        <Label name="User mame or Email" />
+        <Label name="Username or Email" />
         <Input
-          placeholder="email@gmail.com"
+          placeholder="username or email@gmail.com"
           type="text"
           value={loginForm.emailOrUsername}
           onChange={(e) =>

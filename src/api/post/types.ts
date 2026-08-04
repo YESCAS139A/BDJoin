@@ -8,9 +8,16 @@ export interface PostApi {
     userName: string,
     page?: number,
   ): Promise<PaginatedResponse<Post>>;
+  getHomeFeed(page?: number): Promise<PaginatedResponse<Post>>;
+  getFeedFriends(
+    page?: number,
+    sort?: SortOrder,
+  ): Promise<PaginatedResponse<Post>>;
   updatePost(postId: number, data: UpdatePost): Promise<Post>;
   deletePost(postId: number): Promise<void>;
 }
+
+export type SortOrder = "asc" | "desc";
 
 //output post propio
 export type Post = {

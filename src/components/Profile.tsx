@@ -57,7 +57,7 @@ const Profile = ({ data }: ProfileProps) => {
               className="text-sm font-semibold text-gray-700"
               name="Biography"
             />
-            <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 min-h-[80px] whitespace-pre-wrap">
+            <div className="w-full mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 min-h-80px whitespace-pre-wrap">
               {profile.biography || "No biography."}
             </div>
           </div>

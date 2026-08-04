@@ -2,7 +2,6 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import authApi from "../../../api/auth";
-import useAuthUser from "../../../hooks/useAuthUser";
 
 type LoginForm = {
   emailOrUsername: string;
@@ -17,26 +16,25 @@ const LOGIN_FORM: LoginForm = {
 function useLogIn() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { setUser } = useAuthUser();
 
   const [loginForm, setLoginForm] = useState<LoginForm>(LOGIN_FORM);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-
     setLoading(true);
+
+    const input = loginForm.emailOrUsername.trim();
+    const isEmail = input.includes("@");
+
     try {
+      // Discrimina si es correo o usuario según la presencia de "@"
       await authApi.login({
-        emailOrUser: loginForm.emailOrUsername,
+        ...(isEmail ? { email: input } : { username: input }),
         password: loginForm.password,
       });
-
-      const userData = await authApi.getMe();
-      setUser(userData);
 
       const redirectPath = searchParams.get("redirectTo") || "/home";
       navigate(redirectPath);
@@ -49,13 +47,7 @@ function useLogIn() {
     }
   };
 
-  return {
-    loading,
-    error,
-    loginForm,
-    setLoginForm,
-    handleSubmit,
-  };
+  return { loading, error, loginForm, setLoginForm, handleSubmit };
 }
 
 export default useLogIn;

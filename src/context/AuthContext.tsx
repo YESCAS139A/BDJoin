@@ -1,35 +1,30 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 
 import type { CurrentUser } from "../api/auth/types";
-import authApi from "../api/auth";
-import { token } from "../lib/token";
 
 export type AuthContextType = {
   user: CurrentUser | null;
   isLoading: boolean;
-  setUser: (user: CurrentUser | null) => void;
+  setUser: (
+    user:
+      | CurrentUser
+      | null
+      | ((prev: CurrentUser | null) => CurrentUser | null),
+  ) => void;
 };
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    async function loadUser() {
-      if (token.isAuthenticated()) {
-        try {
-          const currentUser = await authApi.getMe();
-          setUser(currentUser);
-        } catch {
-          token.clear();
-          setUser(null);
-        }
-      }
-      setIsLoading(false);
-    }
-    loadUser();
-  }, []);
+
+  // Sin endpoint /Api/Auth/me, no hay forma de revalidar sesión en cada mount.
+  // isLoading se resuelve de inmediato; requireAuth sigue protegiendo rutas
+  // usando solo el token, no dependemos de este contexto para eso.
+  const isLoading = false;
+
   return (
     <AuthContext.Provider value={{ user, isLoading, setUser }}>
       {children}

@@ -1,3 +1,4 @@
+import type { PaginatedResponse } from "../../lib/pagination";
 import { token } from "../../lib/token";
 import { ProfileNotFoundError } from "./types";
 import type {
@@ -7,11 +8,14 @@ import type {
   UpdateMyProfile,
   RelationshipStatus,
   FriendSummaryResponse,
+  UserSearchResult,
 } from "./types";
 
 const CURRENT_USERNAME = "testuser";
+const CURRENT_USER_ID = "u1";
 
 type MockUser = {
+  userId: string;
   userName: string;
   email: string;
   name?: string;
@@ -23,11 +27,12 @@ type MockUser = {
   recentFriends: FriendSummaryResponse[];
   relationshipStatus: RelationshipStatus;
   birthday?: string;
-  city?: string;
+  city?: string; // se conserva solo en el mock para simular UserProfile público
 };
 
 const MOCK_USERS: Record<string, MockUser> = {
   testuser: {
+    userId: CURRENT_USER_ID,
     userName: "testuser",
     email: "test@example.com",
     name: "Usuario",
@@ -40,33 +45,30 @@ const MOCK_USERS: Record<string, MockUser> = {
       {
         userName: "ana",
         name: "Ana",
-        lastName: "López",
         profileImageUrl: "https://i.pravatar.cc/150?u=ana",
       },
       {
         userName: "carlos",
         name: "Carlos",
-        lastName: "Ruiz",
         profileImageUrl: "https://i.pravatar.cc/150?u=carlos",
       },
       {
         userName: "maria",
         name: "María",
-        lastName: "Pérez",
         profileImageUrl: "https://i.pravatar.cc/150?u=maria",
       },
       {
         userName: "pedro",
         name: "Pedro",
-        lastName: "Sánchez",
         profileImageUrl: "https://i.pravatar.cc/150?u=pedro",
       },
     ],
     relationshipStatus: "None",
-    birthday: "14-feb-2000",
+    birthday: "2000-02-14",
     city: "hermosillo",
   },
   ana: {
+    userId: "u2",
     userName: "ana",
     email: "ana@example.com",
     name: "Ana",
@@ -79,6 +81,7 @@ const MOCK_USERS: Record<string, MockUser> = {
     relationshipStatus: "Friends",
   },
   carlos: {
+    userId: "u3",
     userName: "carlos",
     email: "carlos@example.com",
     name: "Carlos",
@@ -90,6 +93,7 @@ const MOCK_USERS: Record<string, MockUser> = {
     relationshipStatus: "PendingReceived",
   },
   maria: {
+    userId: "u4",
     userName: "maria",
     email: "maria@example.com",
     name: "María",
@@ -101,6 +105,7 @@ const MOCK_USERS: Record<string, MockUser> = {
     relationshipStatus: "PendingSent",
   },
   pedro: {
+    userId: "u5",
     userName: "pedro",
     email: "pedro@example.com",
     name: "Pedro",
@@ -123,6 +128,7 @@ class MockProfileApi implements ProfileApi {
     const user = MOCK_USERS[CURRENT_USERNAME];
 
     return {
+      userId: user.userId,
       userName: user.userName,
       email: user.email,
       name: user.name,
@@ -130,10 +136,8 @@ class MockProfileApi implements ProfileApi {
       profileImageUrl: user.profileImageUrl,
       createdAt: user.createdAt,
       biography: user.biography,
-      friendsCount: user.friendsCount,
       recentFriends: user.recentFriends,
       birthday: user.birthday,
-      city: user.city,
     };
   }
 
@@ -169,6 +173,7 @@ class MockProfileApi implements ProfileApi {
       relationshipStatus: computedStatus,
       friendsCount: user.friendsCount,
       recentFriends: user.recentFriends,
+      city: user.city,
     };
   }
 
@@ -180,8 +185,11 @@ class MockProfileApi implements ProfileApi {
     user.lastName = data.lastName;
     user.profileImageUrl = data.profileImageUrl;
     user.biography = data.biography;
+    user.birthday = data.birthday;
+    user.city = data.city; // se guarda en el mock aunque el backend real no lo devuelva
 
     return {
+      userId: user.userId,
       userName: user.userName,
       email: user.email,
       name: user.name,
@@ -189,8 +197,8 @@ class MockProfileApi implements ProfileApi {
       profileImageUrl: user.profileImageUrl,
       createdAt: user.createdAt,
       biography: user.biography,
-      friendsCount: user.friendsCount,
       recentFriends: user.recentFriends,
+      birthday: user.birthday,
     };
   }
 
@@ -221,6 +229,47 @@ class MockProfileApi implements ProfileApi {
     if (MOCK_USERS[userName]) {
       MOCK_USERS[userName].relationshipStatus = "None";
     }
+  }
+
+  async searchUsers(
+    query: string,
+    page = 1,
+  ): Promise<PaginatedResponse<UserSearchResult>> {
+    await delay(null);
+
+    const normalizedQuery = query.trim().toLowerCase();
+    const isAuthenticated = token.isAuthenticated();
+
+    const matches = Object.values(MOCK_USERS).filter((user) => {
+      const fullName =
+        `${user.name ?? ""} ${user.lastName ?? ""}`.toLowerCase();
+      return (
+        user.userName.toLowerCase().includes(normalizedQuery) ||
+        fullName.includes(normalizedQuery)
+      );
+    });
+
+    const results: UserSearchResult[] = matches.map((user) => {
+      const isSelf = user.userName === CURRENT_USERNAME && isAuthenticated;
+      return {
+        userName: user.userName,
+        name: user.name,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        relationshipStatus: isSelf ? null : user.relationshipStatus,
+      };
+    });
+
+    const pageSize = 10;
+    const start = (page - 1) * pageSize;
+
+    return {
+      items: results.slice(start, start + pageSize),
+      page,
+      pageSize,
+      totalCount: results.length,
+      totalPages: Math.ceil(results.length / pageSize) || 1,
+    };
   }
 
   async removeFriend(userName: string): Promise<void> {

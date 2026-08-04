@@ -1,5 +1,5 @@
 import { PostNotFoundError } from "./types";
-import type { PostApi, Post, CreatePost, UpdatePost } from "./types";
+import type { PostApi, Post, CreatePost, UpdatePost, SortOrder } from "./types";
 import type { PaginatedResponse } from "../../lib/pagination";
 
 const CURRENT_USERNAME = "testuser";
@@ -30,9 +30,21 @@ let mockPosts: Post[] = [
     lastModifiedDate: null,
     lastModifiedBy: null,
   },
+  {
+    id: 3,
+    userId: "u3",
+    authorUserName: "Carlos",
+    author: "Carlos Ruiz",
+    content: "¡Como estan gente??",
+    createdDate: "2024-06-02T12:00:00Z",
+    createdBy: "Carlos",
+    lastModifiedDate: null,
+    lastModifiedBy: null,
+  },
 ];
 
 let nextId = 3;
+const CURRENT_USER_FRIENDS = ["ana"];
 
 function delay<T>(value: T, ms = 500): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
@@ -87,6 +99,26 @@ class MockPostApi implements PostApi {
   async getHomeFeed(page = 1): Promise<PaginatedResponse<Post>> {
     await delay(null);
     return paginate(mockPosts, page);
+  }
+
+  async getFeedFriends(
+    page = 1,
+    sort: SortOrder = "asc",
+  ): Promise<PaginatedResponse<Post>> {
+    await delay(null);
+    const friendsAndSelfPosts = mockPosts.filter(
+      (p) =>
+        p.authorUserName === CURRENT_USERNAME ||
+        CURRENT_USER_FRIENDS.includes(p.authorUserName),
+    );
+
+    const sorted = [...friendsAndSelfPosts].sort((a, b) => {
+      const dateA = new Date(a.createdDate).getTime();
+      const dateB = new Date(b.createdDate).getTime();
+      return sort === "asc" ? dateA - dateB : dateB - dateA;
+    });
+
+    return paginate(sorted, page);
   }
 
   async updatePost(postId: number, data: UpdatePost): Promise<Post> {
