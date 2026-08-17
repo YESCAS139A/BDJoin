@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { api } from "../httpClient";
 
 import {
@@ -8,6 +9,9 @@ import {
   type UpdateMyProfile,
   ProfileNotFoundError,
   type UserSearchResult,
+  type PendingRequestItem,
+  type GetFriendsParams,
+  type FriendListResponse,
 } from "./types";
 import type { PaginatedResponse } from "../../lib/pagination";
 
@@ -23,8 +27,9 @@ class ProfileApi implements IProfileApi {
 
   async userProfile(userName: string): Promise<UserProfile> {
     try {
+      const safeUsername = encodeURIComponent(userName.trim().toLowerCase());
       const response = await api.get<UserProfile>(
-        `${this.profileRoute}/${userName}`,
+        `${this.profileRoute}/${safeUsername}`,
       );
       return response.data;
     } catch (error: unknown) {
@@ -39,28 +44,35 @@ class ProfileApi implements IProfileApi {
   }
 
   async updateMyProfile(data: UpdateMyProfile): Promise<MyProfile> {
-    let formattedBirthday: string | null = null;
-    if (data.birthday) {
-      const parsedDate = new Date(data.birthday);
-      if (!isNaN(parsedDate.getTime())) {
-        formattedBirthday = parsedDate.toISOString();
+    const current = await this.myProfile();
+
+    let formattedBirthday: string | null = current.birthday ?? null;
+    if (data.birthday !== undefined) {
+      if (data.birthday) {
+        const parsedDate = new Date(data.birthday);
+        if (!isNaN(parsedDate.getTime())) {
+          formattedBirthday = parsedDate.toISOString();
+        }
+      } else {
+        formattedBirthday = null;
       }
     }
 
-    // Extensión tipada sin usar 'any' para evitar la regla de ESLint
-    const customData = data as UpdateMyProfile & {
-      userId?: string;
-      location?: string;
-    };
-
-    // Payload idéntico al esquema Swagger PATCH /Api/Profile/me
     const payload = {
-      userId: customData.userId || undefined,
-      name: data.name || null,
-      lastName: data.lastName || null,
-      biography: data.biography || null,
-      location: data.city || customData.location || null,
-      profileImageUrl: data.profileImageUrl || null,
+      userId: current.userId,
+      userName: current.userName,
+      name: data.name !== undefined ? data.name : (current.name ?? ""),
+      lastName:
+        data.lastName !== undefined ? data.lastName : (current.lastName ?? ""),
+      biography:
+        data.biography !== undefined
+          ? data.biography
+          : (current.biography ?? ""),
+      location: data.city !== undefined ? data.city : (current.city ?? ""),
+      profileImageUrl:
+        data.profileImageUrl !== undefined
+          ? data.profileImageUrl
+          : (current.profileImageUrl ?? ""),
       birthday: formattedBirthday,
     };
 
@@ -77,29 +89,85 @@ class ProfileApi implements IProfileApi {
   ): Promise<PaginatedResponse<UserSearchResult>> {
     const response = await api.get<PaginatedResponse<UserSearchResult>>(
       `${this.usersRoute}/search`,
-      { params: { q: query, page } },
+      {
+        params: {
+          searchTerm: query,
+          pageIndex: page,
+          pageSize: 10,
+        },
+      },
     );
     return response.data;
   }
 
-  async sendFriendRequest(userName: string): Promise<void> {
-    await api.post(`${this.friendRoute}/request`, { username: userName });
+  async sendFriendRequest(userId: string): Promise<void> {
+    await api.post(`${this.friendRoute}/request`, { receiverId: userId });
   }
 
-  async cancelFriendRequest(userName: string): Promise<void> {
-    await api.post(`${this.friendRoute}/cancel/${userName}`);
+  async cancelFriendRequest(requestId: number): Promise<void> {
+    await api.post(`${this.friendRoute}/cancel/${requestId}`);
   }
 
-  async acceptFriendRequest(userName: string): Promise<void> {
-    await api.post(`${this.friendRoute}/accept/${userName}`);
+  async acceptFriendRequest(requestId: number): Promise<void> {
+    await api.post(`${this.friendRoute}/accept/${requestId}`);
   }
 
-  async rejectFriendRequest(userName: string): Promise<void> {
-    await api.post(`${this.friendRoute}/reject/${userName}`);
+  async rejectFriendRequest(requestId: number): Promise<void> {
+    await api.post(`${this.friendRoute}/reject/${requestId}`);
   }
 
-  async removeFriend(userName: string): Promise<void> {
-    await api.delete(`${this.friendRoute}/${userName}`);
+  async removeFriend(userId: string): Promise<void> {
+    await api.delete(`${this.friendRoute}/${userId}`);
+  }
+
+  async getIncomingRequests(
+    page = 1,
+    pageSize = 10,
+  ): Promise<PaginatedResponse<PendingRequestItem>> {
+    const response = await api.get<PaginatedResponse<PendingRequestItem>>(
+      `${this.friendRoute}/pending`,
+      {
+        params: { pageIndex: page, pageSize },
+      },
+    );
+    return response.data;
+  }
+
+  async getOutgoingRequests(
+    page = 1,
+    pageSize = 10,
+  ): Promise<PaginatedResponse<PendingRequestItem>> {
+    const response = await api.get<PaginatedResponse<PendingRequestItem>>(
+      `${this.friendRoute}/sent`,
+      {
+        params: { pageIndex: page, pageSize },
+      },
+    );
+    return response.data;
+  }
+
+  async getFriends(params: GetFriendsParams = {}): Promise<FriendListResponse> {
+    const {
+      pageIndex = 1,
+      pageSize = 10,
+      searchTerm = "",
+      sortBy = "Username",
+      sortDescending = false,
+    } = params;
+
+    const response = await api.get<FriendListResponse>(
+      `${this.friendRoute}/list`,
+      {
+        params: {
+          pageIndex,
+          pageSize,
+          searchTerm: searchTerm || undefined,
+          sortBy,
+          sortDescending,
+        },
+      },
+    );
+    return response.data;
   }
 }
 

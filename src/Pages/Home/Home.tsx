@@ -18,6 +18,7 @@ const Home = () => {
       <SearchUsers />
       <FormPost onSubmitPost={handleCreatePost} />
       <UserFeed
+        showSortControl={true}
         key={refreshKey}
         showOwnerActions={false}
         emptyMessage="There are no posts yet."

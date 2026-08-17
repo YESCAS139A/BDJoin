@@ -1,3 +1,4 @@
+// hooks/useAuthUser.ts
 import { useState, useEffect } from "react";
 import profileApi from "../api/profile";
 import { token } from "../lib/token";
@@ -11,19 +12,19 @@ export type AuthUser = {
 
 export default function useAuthUser() {
   const [user, setUser] = useState<AuthUser | null>(null);
-  // Inicializamos isLoading evaluando si hay un token guardado para evitar el error del linter
   const [isLoading, setIsLoading] = useState<boolean>(() =>
     token.isAuthenticated(),
   );
 
   useEffect(() => {
-    if (!token.isAuthenticated()) {
-      return;
-    }
+    const loadUser = async () => {
+      if (!token.isAuthenticated()) {
+        setIsLoading(false);
+        return;
+      }
 
-    profileApi
-      .myProfile()
-      .then((data) => {
+      try {
+        const data = await profileApi.myProfile();
         const nameParts = [data.name, data.lastName].filter(Boolean).join(" ");
 
         setUser({
@@ -32,14 +33,15 @@ export default function useAuthUser() {
           avatar: data.profileImageUrl,
           email: data.email,
         });
-      })
-      .catch((error) => {
-        console.error("Error al obtener la información del usuario:", error);
+      } catch (error) {
+        console.error("Error retrieving user information:", error);
         setUser(null);
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    loadUser();
   }, []);
 
   return { user, setUser, isLoading };

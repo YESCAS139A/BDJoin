@@ -1,10 +1,11 @@
 import { token } from "../../lib/token";
 import type {
+  AuthApi as IAuthApi,
   RegisterPayload,
   RegisterResponse,
-  AuthApi as IAuthApi,
   LoginPayload,
   LoginResponse,
+  ChangePasswordPayload,
   CurrentUser,
 } from "./types";
 
@@ -28,14 +29,15 @@ class AuthApi implements IAuthApi {
     await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Mock login con:", data);
 
-    const validEmailOrUser =
-      data.emailOrUser === MOCK_USER.email ||
-      data.emailOrUser === MOCK_USER.userName;
+    const identifier =
+      "username" in data && data.username ? data.username : data.email;
 
-    const ValidPassword = data.password === MOCK_USER.password;
+    const validIdentifier =
+      identifier === MOCK_USER.email || identifier === MOCK_USER.userName;
+    const validPassword = data.password === MOCK_USER.password;
 
-    if (!validEmailOrUser || !ValidPassword) {
-      throw new Error("Invalid email/user or password");
+    if (!validIdentifier || !validPassword) {
+      throw new Error("Invalid username/email or password");
     }
 
     const mockToken = "mock_token_" + Date.now();
@@ -43,8 +45,8 @@ class AuthApi implements IAuthApi {
 
     return {
       username: MOCK_USER.userName,
-      email: MOCK_USER.email,
       token: mockToken,
+      email: MOCK_USER.email,
     };
   }
 
@@ -59,9 +61,19 @@ class AuthApi implements IAuthApi {
     return {
       userName: MOCK_USER.userName,
       email: MOCK_USER.email,
-      displayName: "usuario de prueba",
-      avatar: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIYyD47-CjBVKGcoo-cEZB36Xr-Wd6JMzBWfE7_QotYQ&s=10`,
+      avatar:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIYyD47-CjBVKGcoo-cEZB36Xr-Wd6JMzBWfE7_QotYQ&s=10",
     };
+  }
+
+  async changePassword(data: ChangePasswordPayload): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log("Mock changePassword con:", data);
+  }
+
+  async deleteAccount(): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log("Mock deleteAccount ejecutado");
   }
 }
 

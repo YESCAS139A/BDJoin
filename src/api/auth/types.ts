@@ -1,7 +1,16 @@
 export interface AuthApi {
   register(data: RegisterPayload): Promise<RegisterResponse>;
   login(data: LoginPayload): Promise<LoginResponse>;
+  changePassword(data: ChangePasswordPayload): Promise<void>;
+  deleteAccount(): Promise<void>;
 }
+
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+  invalidateOtherSessions?: boolean;
+};
 
 export type LoginPayload =
   | { username: string; email?: never; password: string }

@@ -36,27 +36,28 @@ class PostApi implements IPostApi {
     page = 1,
   ): Promise<PaginatedResponse<Post>> {
     const response = await api.get<PaginatedResponse<Post>>(
-      `${this.route}/user/${userName}`,
-      { params: { page } },
+      `${this.route}/user/${encodeURIComponent(userName)}`,
+      {
+        params: {
+          pageIndex: page,
+          pageSize: 10,
+        },
+      },
     );
     return response.data;
   }
 
-  async getHomeFeed(page = 1): Promise<PaginatedResponse<Post>> {
-    const response = await api.get<PaginatedResponse<Post>>(`/api/Feed`, {
-      params: { page },
-    });
-    return response.data;
-  }
-
-  async getFeedFriends(
+  async getHomeFeed(
     page = 1,
     sort: SortOrder = "asc",
   ): Promise<PaginatedResponse<Post>> {
-    const response = await api.get<PaginatedResponse<Post>>(
-      `/api/Feed/friends`,
-      { params: { page, sort } },
-    );
+    const response = await api.get<PaginatedResponse<Post>>(`/Api/Feed`, {
+      params: {
+        pageIndex: page,
+        pageSize: 10,
+        Sort: sort,
+      },
+    });
     return response.data;
   }
 

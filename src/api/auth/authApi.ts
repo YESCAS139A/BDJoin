@@ -1,5 +1,6 @@
 import type {
   AuthApi as IAuthApi,
+  ChangePasswordPayload,
   LoginPayload,
   LoginResponse,
   RegisterPayload,
@@ -28,6 +29,16 @@ class AuthApi implements IAuthApi {
       data,
     );
     return response.data;
+  }
+
+  async changePassword(data: ChangePasswordPayload): Promise<void> {
+    const endpoint = this.route + "/Change-password";
+    await api.post(endpoint, data);
+  }
+
+  async deleteAccount(): Promise<void> {
+    const endpoint = `${this.route}/Delete`;
+    await api.delete(endpoint);
   }
 }
 

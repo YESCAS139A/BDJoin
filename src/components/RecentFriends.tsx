@@ -31,7 +31,7 @@ function RecentFriends({ friends = [] }: RecentFriendsProps) {
           >
             <Avatar src={friend.profileImageUrl} size="sm" />
             <span className="text-xs text-gray-600 truncate w-full text-center">
-              @{friend.userName}
+              {friend.userName}
             </span>
           </Link>
         ))}

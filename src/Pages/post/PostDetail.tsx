@@ -121,14 +121,14 @@ const PostDetail = () => {
       <article className="bg-white p-5 md:p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <Link
-            to={`/p/${post.authorUserName}`}
+            to={`/p/${post.author}`}
             className="flex items-center gap-2 group cursor-pointer"
           >
             <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors">
               {post.author || post.authorUserName}
             </span>
             <span className="text-xs text-gray-500 group-hover:underline">
-              @{post.authorUserName}
+              {post.authorUserName}
             </span>
           </Link>
 

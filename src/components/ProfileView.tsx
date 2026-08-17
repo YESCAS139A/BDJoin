@@ -5,6 +5,7 @@ import { getProfileActions } from "../lib/profileActions";
 import Avatar from "./Avatar";
 import RecentFriends from "./RecentFriends";
 import UserFeed from "./UserFeed";
+import type { PendingAction } from "../pages/profile/PublicProfile";
 
 type ProfileViewProps = {
   profile: UserProfile;
@@ -13,28 +14,32 @@ type ProfileViewProps = {
   onAcceptRequest: () => void;
   onRejectRequest: () => void;
   onRemoveFriend: () => void;
+  pendingAction?: PendingAction;
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  None: "Regular user",
-  PendingSent: "Application submitted",
-  PendingReceived: "He sent you a request",
-  Friends: "They're friends",
+const STATUS_LABELS: Record<number | string, string> = {
+  0: "Regular user",
+  1: "Application submitted",
+  2: "He sent you a request",
+  3: "They're friends",
 };
 
 function ProfileView({
   profile,
+  pendingAction,
   onSendRequest,
   onCancelRequest,
   onAcceptRequest,
   onRejectRequest,
   onRemoveFriend,
 }: ProfileViewProps) {
-  const actions = getProfileActions(profile.relationshipStatus) ?? [];
-
   const isSelf = profile.relationshipStatus === null;
 
+  const actions = getProfileActions(profile.relationshipStatus, isSelf) ?? [];
+
   const displayName = `${profile.name ?? ""} ${profile.lastName ?? ""}`.trim();
+
+  const isPending = Boolean(pendingAction);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 p-4">
@@ -49,9 +54,9 @@ function ProfileView({
             <span className="text-lg font-bold text-gray-900">
               {displayName || profile.userName}
             </span>
-            <span className="text-sm text-gray-500">@{profile.userName}</span>
+            <span className="text-sm text-gray-500">{profile.userName}</span>
             <span className="text-xs text-gray-500 mt-1 font-medium">
-              Friends: {profile.friendsCount ?? 0}
+              Friends: {profile.friendsCount}
             </span>
           </div>
         </div>
@@ -62,59 +67,70 @@ function ProfileView({
           </p>
         )}
 
-        {!isSelf && profile.relationshipStatus && (
+        {!isSelf && profile.relationshipStatus !== null ? (
           <div>
             <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-              {STATUS_LABELS[profile.relationshipStatus] || "Desconocido"}
+              {STATUS_LABELS[profile.relationshipStatus] || "Unknown"}
             </span>
           </div>
-        )}
-
+        ) : null}
         <RecentFriends friends={profile.recentFriends} />
 
         <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
           {actions.includes("add_friend") && (
             <button
+              type="button"
               onClick={onSendRequest}
-              className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
             >
-              Add a friend
+              {pendingAction === "send" ? "sending..." : "Add a friend"}
             </button>
           )}
 
           {actions.includes("cancel_request") && (
             <button
+              type="button"
               onClick={onCancelRequest}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
-              Cancel Request
+              {pendingAction === "cancel" ? "canceling..." : "Cancel Request"}
             </button>
           )}
 
           {actions.includes("accept_request") && (
             <button
+              type="button"
               onClick={onAcceptRequest}
-              className="px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
             >
-              Accept Request
+              {pendingAction === "accept" ? "accepting..." : "Accept Request"}
             </button>
           )}
 
           {actions.includes("reject_request") && (
             <button
+              type="button"
               onClick={onRejectRequest}
-              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
-              Reject
+              {pendingAction === "reject" ? "Rechazando..." : "Reject"}
             </button>
           )}
 
           {actions.includes("remove_friend") && (
             <button
+              type="button"
               onClick={onRemoveFriend}
-              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+              disabled={isPending}
+              className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
-              Remove from my friends
+              {pendingAction === "remove"
+                ? "removinge we..."
+                : "Remove from my friends"}
             </button>
           )}
 
@@ -140,7 +156,7 @@ function ProfileView({
 
       <div className="space-y-3">
         <h2 className="text-lg font-bold text-gray-800">
-          {isSelf ? "My Posts" : `Publications by @${profile.userName}`}
+          {isSelf ? "My Posts" : `Publications by ${profile.userName}`}
         </h2>
 
         <UserFeed

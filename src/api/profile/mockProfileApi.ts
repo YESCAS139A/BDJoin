@@ -9,6 +9,9 @@ import type {
   RelationshipStatus,
   FriendSummaryResponse,
   UserSearchResult,
+  PendingRequestItem,
+  FriendListResponse,
+  GetFriendsParams,
 } from "./types";
 
 const CURRENT_USERNAME = "testuser";
@@ -27,7 +30,8 @@ type MockUser = {
   recentFriends: FriendSummaryResponse[];
   relationshipStatus: RelationshipStatus;
   birthday?: string;
-  city?: string; // se conserva solo en el mock para simular UserProfile público
+  city?: string;
+  requestId: number;
 };
 
 const MOCK_USERS: Record<string, MockUser> = {
@@ -63,9 +67,10 @@ const MOCK_USERS: Record<string, MockUser> = {
         profileImageUrl: "https://i.pravatar.cc/150?u=pedro",
       },
     ],
-    relationshipStatus: "None",
+    relationshipStatus: 0,
     birthday: "2000-02-14",
     city: "hermosillo",
+    requestId: 0,
   },
   ana: {
     userId: "u2",
@@ -78,7 +83,8 @@ const MOCK_USERS: Record<string, MockUser> = {
     friendsCount: 12,
     biography: "Hola soy Ana",
     recentFriends: [],
-    relationshipStatus: "Friends",
+    relationshipStatus: 3,
+    requestId: 101,
   },
   carlos: {
     userId: "u3",
@@ -90,7 +96,8 @@ const MOCK_USERS: Record<string, MockUser> = {
     createdAt: "2024-03-01T00:00:00Z",
     friendsCount: 5,
     recentFriends: [],
-    relationshipStatus: "PendingReceived",
+    relationshipStatus: 2,
+    requestId: 102,
   },
   maria: {
     userId: "u4",
@@ -102,7 +109,8 @@ const MOCK_USERS: Record<string, MockUser> = {
     createdAt: "2024-04-01T00:00:00Z",
     friendsCount: 8,
     recentFriends: [],
-    relationshipStatus: "PendingSent",
+    relationshipStatus: 1,
+    requestId: 103,
   },
   pedro: {
     userId: "u5",
@@ -114,7 +122,8 @@ const MOCK_USERS: Record<string, MockUser> = {
     createdAt: "2024-05-01T00:00:00Z",
     friendsCount: 0,
     recentFriends: [],
-    relationshipStatus: "None",
+    relationshipStatus: 0,
+    requestId: 0,
   },
 };
 
@@ -161,10 +170,11 @@ class MockProfileApi implements ProfileApi {
     if (isSelf) {
       computedStatus = null;
     } else if (!isAuthenticated) {
-      computedStatus = "None";
+      computedStatus = 0;
     }
 
     return {
+      userId: user.userId,
       userName: user.userName,
       name: user.name,
       lastName: user.lastName,
@@ -174,6 +184,7 @@ class MockProfileApi implements ProfileApi {
       friendsCount: user.friendsCount,
       recentFriends: user.recentFriends,
       city: user.city,
+      requestId: user.requestId,
     };
   }
 
@@ -186,7 +197,7 @@ class MockProfileApi implements ProfileApi {
     user.profileImageUrl = data.profileImageUrl;
     user.biography = data.biography;
     user.birthday = data.birthday;
-    user.city = data.city; // se guarda en el mock aunque el backend real no lo devuelva
+    user.city = data.city;
 
     return {
       userId: user.userId,
@@ -202,32 +213,59 @@ class MockProfileApi implements ProfileApi {
     };
   }
 
-  async sendFriendRequest(userName: string): Promise<void> {
+  async sendFriendRequest(userId: string): Promise<void> {
     await delay(undefined);
-    if (MOCK_USERS[userName]) {
-      MOCK_USERS[userName].relationshipStatus = "PendingSent";
+    const target = Object.values(MOCK_USERS).find(
+      (u) => u.userId === userId || u.userName === userId,
+    );
+    if (target) {
+      target.relationshipStatus = 1;
+      target.requestId = Math.floor(Math.random() * 1000) + 1;
     }
   }
 
-  async cancelFriendRequest(userName: string): Promise<void> {
+  async cancelFriendRequest(requestId: number): Promise<void> {
     await delay(undefined);
-    if (MOCK_USERS[userName]) {
-      MOCK_USERS[userName].relationshipStatus = "None";
+    const target = Object.values(MOCK_USERS).find(
+      (u) => u.requestId === requestId,
+    );
+    if (target) {
+      target.relationshipStatus = 0;
+      target.requestId = 0;
     }
   }
 
-  async acceptFriendRequest(userName: string): Promise<void> {
+  async acceptFriendRequest(requestId: number): Promise<void> {
     await delay(undefined);
-    if (MOCK_USERS[userName]) {
-      MOCK_USERS[userName].relationshipStatus = "Friends";
-      MOCK_USERS[userName].friendsCount += 1;
+    const target = Object.values(MOCK_USERS).find(
+      (u) => u.requestId === requestId,
+    );
+    if (target) {
+      target.relationshipStatus = 3;
+      target.friendsCount += 1;
     }
   }
 
-  async rejectFriendRequest(userName: string): Promise<void> {
+  async rejectFriendRequest(requestId: number): Promise<void> {
     await delay(undefined);
-    if (MOCK_USERS[userName]) {
-      MOCK_USERS[userName].relationshipStatus = "None";
+    const target = Object.values(MOCK_USERS).find(
+      (u) => u.requestId === requestId,
+    );
+    if (target) {
+      target.relationshipStatus = 0;
+      target.requestId = 0;
+    }
+  }
+
+  async removeFriend(userId: string): Promise<void> {
+    await delay(undefined);
+    const target = Object.values(MOCK_USERS).find(
+      (u) => u.userId === userId || u.userName === userId,
+    );
+    if (target) {
+      target.relationshipStatus = 0;
+      target.friendsCount = Math.max(0, target.friendsCount - 1);
+      target.requestId = 0;
     }
   }
 
@@ -252,11 +290,16 @@ class MockProfileApi implements ProfileApi {
     const results: UserSearchResult[] = matches.map((user) => {
       const isSelf = user.userName === CURRENT_USERNAME && isAuthenticated;
       return {
+        userId: user.userId,
+        username: user.userName,
         userName: user.userName,
         name: user.name,
         lastName: user.lastName,
+        displayName: `${user.name ?? ""} ${user.lastName ?? ""}`.trim(),
         profileImageUrl: user.profileImageUrl,
+        biography: user.biography,
         relationshipStatus: isSelf ? null : user.relationshipStatus,
+        requestId: user.requestId,
       };
     });
 
@@ -272,15 +315,99 @@ class MockProfileApi implements ProfileApi {
     };
   }
 
-  async removeFriend(userName: string): Promise<void> {
-    await delay(undefined);
-    if (MOCK_USERS[userName]) {
-      MOCK_USERS[userName].relationshipStatus = "None";
-      MOCK_USERS[userName].friendsCount = Math.max(
-        0,
-        MOCK_USERS[userName].friendsCount - 1,
-      );
-    }
+  async getIncomingRequests(
+    page = 1,
+    pageSize = 10,
+  ): Promise<PaginatedResponse<PendingRequestItem>> {
+    await delay(null);
+
+    const incomingUsers = Object.values(MOCK_USERS).filter(
+      (u) => u.relationshipStatus === 2,
+    );
+
+    const items: PendingRequestItem[] = incomingUsers.map((u) => ({
+      requestId: u.requestId,
+      senderId: u.userId,
+      senderUsername: u.userName,
+      senderDisplayName: `${u.name ?? ""} ${u.lastName ?? ""}`.trim(),
+      senderProfileImageUrl: u.profileImageUrl,
+      createdAt: u.createdAt,
+      status: "Pending",
+    }));
+
+    const start = (page - 1) * pageSize;
+
+    return {
+      items: items.slice(start, start + pageSize),
+      page,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize) || 1,
+    };
+  }
+
+  async getOutgoingRequests(
+    page = 1,
+    pageSize = 10,
+  ): Promise<PaginatedResponse<PendingRequestItem>> {
+    await delay(null);
+
+    const outgoingUsers = Object.values(MOCK_USERS).filter(
+      (u) => u.relationshipStatus === 1,
+    );
+
+    const items: PendingRequestItem[] = outgoingUsers.map((u) => ({
+      requestId: u.requestId,
+      senderId: CURRENT_USER_ID,
+      senderUsername: CURRENT_USERNAME,
+      senderDisplayName: "Usuario de Prueba",
+      senderProfileImageUrl: MOCK_USERS[CURRENT_USERNAME].profileImageUrl,
+      createdAt: u.createdAt,
+      status: "Pending",
+    }));
+
+    const start = (page - 1) * pageSize;
+
+    return {
+      items: items.slice(start, start + pageSize),
+      page,
+      pageSize,
+      totalCount: items.length,
+      totalPages: Math.ceil(items.length / pageSize) || 1,
+    };
+  }
+
+  async getFriends(params: GetFriendsParams): Promise<FriendListResponse> {
+    await delay(null);
+
+    const pageIndex = params.pageIndex ?? 1;
+    const pageSize = params.pageSize ?? 10;
+
+    const friendsList = Object.values(MOCK_USERS).filter(
+      (u) => u.relationshipStatus === 3 && u.userName !== CURRENT_USERNAME,
+    );
+
+    const items = friendsList.map((u) => ({
+      userId: u.userId,
+      username: u.userName,
+      displayName: `${u.name ?? ""} ${u.lastName ?? ""}`.trim(),
+      avatarUrl: u.profileImageUrl,
+      becameFriendsAt: u.createdAt,
+    }));
+
+    const start = (pageIndex - 1) * pageSize;
+    const paginatedItems = items.slice(start, start + pageSize);
+    const totalPages = Math.ceil(items.length / pageSize) || 1;
+
+    return {
+      pageIndex,
+      pageSize,
+      totalCount: items.length,
+      totalPages,
+      hasPreviousPage: pageIndex > 1,
+      hasNextPage: pageIndex < totalPages,
+      items: paginatedItems,
+    };
   }
 }
 

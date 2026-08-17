@@ -13,6 +13,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 
 import useLogout from "../hooks/useLogout";
 import { BsPostcardFill } from "react-icons/bs";
+import { IoIosAddCircle, IoIosSettings } from "react-icons/io";
 
 function SideBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,8 +35,10 @@ function SideBar() {
     { to: "/home", label: "Home", icon: <FaHome /> },
     { to: "/profile", label: "Profile", icon: <MdAccountIcon /> },
     { to: "/friends", label: "Friends", icon: <FaUserFriends /> },
+    { to: "/request", label: "Request", icon: <IoIosAddCircle /> },
     { to: "/account", label: "Account", icon: <RiAccountPinCircleFill /> },
     { to: "/post", label: "Posts", icon: <BsPostcardFill /> },
+    { to: "/settings", label: "Settings", icon: <IoIosSettings /> },
   ];
 
   return (

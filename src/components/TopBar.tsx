@@ -1,3 +1,4 @@
+// components/TopBar.tsx
 import useAuthUser from "../hooks/useAuthUser";
 import { CiUser } from "react-icons/ci";
 

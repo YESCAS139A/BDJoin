@@ -11,17 +11,18 @@ export type ProfileAction =
 
 export function getProfileActions(
   status: RelationshipStatus | null | undefined,
+  isSelf: boolean,
 ): ProfileAction[] {
-  if (status === null) return ["edit_profile", "manage_account"];
-
+  if (isSelf) return ["edit_profile", "manage_account"];
+  if (status === null || status === undefined) return ["add_friend"];
   switch (status) {
-    case "None":
+    case 0:
       return ["add_friend"];
-    case "PendingSent":
+    case 1:
       return ["cancel_request"];
-    case "PendingReceived":
+    case 2:
       return ["accept_request", "reject_request"];
-    case "Friends":
+    case 3:
       return ["remove_friend"];
     default:
       return [];

@@ -1,51 +1,86 @@
-import { useEffect, useState } from "react";
-
+import { useState, useEffect } from "react";
 import profileApi from "../../api/profile";
-import type {
-  MyProfile as MyProfileType,
-  UpdateMyProfile,
-} from "../../api/profile/types";
 import FormAccount from "../../components/FormAccount";
+import useAuthUser from "../../hooks/useAuthUser";
+import { token } from "../../lib/token";
+import type { MyProfile, UpdateMyProfile } from "../../api/profile/types";
 
-function MyProfileAccount() {
-  const [profile, setProfile] = useState<MyProfileType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+const Account = () => {
+  const { user, setUser } = useAuthUser();
+  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<MyProfile | null>(null);
 
   useEffect(() => {
-    profileApi
-      .myProfile()
-      .then(setProfile)
-      .finally(() => setIsLoading(false));
+    const loadProfile = async () => {
+      if (!token.isAuthenticated()) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const data = await profileApi.myProfile();
+        setProfileData(data);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
   }, []);
 
-  async function handleSubmit(data: UpdateMyProfile): Promise<MyProfileType> {
-    setIsSaving(true);
-    try {
-      const updated = await profileApi.updateMyProfile(data);
-      setProfile(updated);
-      return updated; // <- esto es lo que faltaba
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSubmitProfile = async (
+    data: UpdateMyProfile,
+  ): Promise<MyProfile> => {
+    const updatedProfile = await profileApi.updateMyProfile(data);
+
+    const newFirstName = data.name ?? profileData?.name ?? "";
+    const newLastName = data.lastName ?? profileData?.lastName ?? "";
+    const newDisplayName =
+      `${newFirstName} ${newLastName}`.trim() || updatedProfile.userName;
+
+    const newProfileData = {
+      ...updatedProfile,
+      displayName: newDisplayName,
+    };
+    setProfileData(newProfileData);
+
+    setUser({
+      userName: updatedProfile.userName,
+      displayName: newDisplayName,
+      avatar:
+        data.profileImageUrl !== undefined
+          ? data.profileImageUrl
+          : user?.avatar,
+      email: updatedProfile.email,
+    });
+
+    return newProfileData;
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto p-6 text-center text-gray-500">
+        Loading account...
+      </div>
+    );
   }
 
-  if (isLoading)
-    return <p className="text-center justify-center">Cargando...</p>;
-  if (!profile)
+  if (!profileData) {
     return (
-      <p className="text-center justify-center">No se pudo cargar tu perfil.</p>
+      <div className="max-w-2xl mx-auto p-6 text-center text-red-500">
+        Error loading profile data.
+      </div>
     );
+  }
 
   return (
-    <div>
-      <FormAccount
-        initialData={profile}
-        onSubmit={handleSubmit}
-        isSaving={isSaving}
-      />
+    <div className="max-w-2xl mx-auto p-4">
+      <FormAccount initialData={profileData} onSubmit={handleSubmitProfile} />
     </div>
   );
-}
+};
 
-export default MyProfileAccount;
+export default Account;

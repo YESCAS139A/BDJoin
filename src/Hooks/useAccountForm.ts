@@ -22,12 +22,13 @@ export function useAccountForm({
   );
   const [biography, setBiography] = useState(initialData.biography ?? "");
   const [birthday, setBirthday] = useState(initialData.birthday ?? "");
-  const [city, setCity] = useState(""); // sin valor inicial: el backend no lo devuelve
+  const [city, setCity] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const savedDisplayName =
-    `${initialData.name ?? ""} ${initialData.lastName ?? ""}`.trim();
+  const [currentDisplayName, setCurrentDisplayName] = useState(
+    `${initialData.name ?? ""} ${initialData.lastName ?? ""}`.trim(),
+  );
 
   function handleCancel() {
     setName(initialData.name ?? "");
@@ -72,20 +73,27 @@ export function useAccountForm({
         lastName,
         profileImageUrl: profileImageUrl || undefined,
         biography: biography || undefined,
-        birthday: birthday || undefined, // YYYY-MM-DD, del <input type="date">
+        birthday: birthday || undefined,
         city: city || undefined,
       });
+
+      const newFirstName = updatedProfile.name ?? name;
+      const newLastName = updatedProfile.lastName ?? lastName;
+      const computedDisplayName = `${newFirstName} ${newLastName}`.trim();
+
+      setCurrentDisplayName(computedDisplayName);
 
       setUser((prev) =>
         prev
           ? {
               ...prev,
-              avatar: updatedProfile.profileImageUrl,
+              displayName: computedDisplayName || prev.userName,
+              avatar: updatedProfile.profileImageUrl ?? profileImageUrl,
             }
           : prev,
       );
     } catch (err) {
-      console.error("Error al actualizar el perfil:", err);
+      console.error("Error updating the profile:", err);
       setErrors((prev) => ({
         ...prev,
         server: "An error occurred while saving the changes.",
@@ -104,7 +112,7 @@ export function useAccountForm({
     city,
     errors,
     isSubmitting,
-    savedDisplayName,
+    savedDisplayName: currentDisplayName,
     setName,
     setLastName,
     setProfileImageUrl,

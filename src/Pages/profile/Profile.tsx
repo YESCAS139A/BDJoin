@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import profileApi from "../../api/profile";
 import type { MyProfile } from "../../api/profile/types";
 import FormProfile from "../../components/Profile";
+import UserFeed from "../../components/UserFeed";
 
-function Profile() {
+function ProfilePage() {
   const [profile, setProfile] = useState<MyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,7 +16,7 @@ function Profile() {
         setProfile(data);
       })
       .catch((error) => {
-        console.error("Error al cargar el perfil:", error);
+        console.error("Error loading profile:", error);
       })
       .finally(() => {
         setIsLoading(false);
@@ -38,7 +39,27 @@ function Profile() {
     );
   }
 
-  return <FormProfile data={profile} />;
+  const currentUsername =
+    profile.userName || (profile as unknown as { username?: string }).username;
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6 pb-12">
+      <FormProfile data={profile} />
+
+      <div className="space-y-3">
+        <h2 className="text-lg font-bold text-gray-800">My Posts</h2>
+        {currentUsername ? (
+          <UserFeed
+            userName={currentUsername}
+            showOwnerActions={true}
+            showSortControl={true}
+          />
+        ) : (
+          <p className="text-sm text-gray-400">Username not found.</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
-export default Profile;
+export default ProfilePage;

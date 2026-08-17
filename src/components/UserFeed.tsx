@@ -6,15 +6,14 @@ import type { Post, SortOrder } from "../api/post/types";
 
 type UserFeedProps = {
   userName?: string;
-  feedType?: "home" | "friends";
   showOwnerActions?: boolean;
   showSortControl?: boolean;
   emptyMessage?: string;
+  feedType?: "friends" | "home" | "profile";
 };
 
 function UserFeed({
   userName,
-  feedType = "home",
   showOwnerActions = false,
   showSortControl = false,
   emptyMessage = "There are no posts available.",
@@ -29,14 +28,21 @@ function UserFeed({
 
     const request = userName
       ? postApi.getUserPosts(userName)
-      : feedType === "friends"
-        ? postApi.getFeedFriends(1, sort)
-        : postApi.getHomeFeed();
+      : postApi.getHomeFeed(1, sort);
 
     request
       .then((result) => {
         if (!ignore) {
-          setPosts(result.items);
+          const fetchedPosts = result.items || [];
+
+          const sortedPosts = [...fetchedPosts].sort((a, b) => {
+            const dateA = new Date(a.createdDate).getTime();
+            const dateB = new Date(b.createdDate).getTime();
+
+            return sort === "asc" ? dateA - dateB : dateB - dateA;
+          });
+
+          setPosts(sortedPosts);
           setHasError(false);
         }
       })
@@ -50,7 +56,7 @@ function UserFeed({
     return () => {
       ignore = true;
     };
-  }, [userName, feedType, sort, reloadKey]);
+  }, [userName, sort, reloadKey]);
 
   function handleRetry() {
     setPosts(null);
@@ -99,7 +105,7 @@ function UserFeed({
 
   return (
     <div className="space-y-4">
-      {feedType === "friends" && showSortControl && (
+      {showSortControl && (
         <div className="flex justify-end">
           <select
             value={sort}
@@ -108,10 +114,10 @@ function UserFeed({
               setPosts(null);
               setHasError(false);
             }}
-            className="text-sm border border-gray-200 rounded-lg px-2 py-1 cursor-pointer"
+            className="text-sm border border-gray-200 rounded-lg px-2 py-1 cursor-pointer bg-white"
           >
-            <option value="asc">Old Post</option>
-            <option value="desc">New Post</option>
+            <option value="asc">Oldest First</option>
+            <option value="desc">Newest First</option>
           </select>
         </div>
       )}
@@ -122,7 +128,7 @@ function UserFeed({
         </div>
       ) : (
         posts.map((post) => {
-          const isOwner = userName ? post.authorUserName === userName : false;
+          const isOwner = userName ? post.author === userName : false;
 
           return (
             <article
@@ -131,14 +137,14 @@ function UserFeed({
             >
               <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                 <Link
-                  to={`/p/${post.authorUserName}`}
+                  to={`/p/${post.author}`}
                   className="flex items-center gap-2 group cursor-pointer"
                 >
                   <span className="font-semibold text-gray-900 text-sm md:text-base group-hover:text-blue-600 transition-colors">
                     {post.author || post.authorUserName}
                   </span>
                   <span className="text-xs text-gray-500 group-hover:underline">
-                    @{post.authorUserName}
+                    {post.authorUserName}
                   </span>
                 </Link>
               </div>

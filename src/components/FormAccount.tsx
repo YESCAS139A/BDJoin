@@ -12,7 +12,7 @@ type AccountProfileProps = {
   isSaving?: boolean;
 };
 
-function Account({
+function FormAccount({
   initialData,
   onSubmit,
   onCancel,
@@ -162,7 +162,6 @@ function Account({
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="No se puede mostrar el valor guardado"
             className="w-full mt-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
           />
         </div>
@@ -188,14 +187,16 @@ function Account({
       </div>
 
       <div className="px-4 py-3 border-t border-gray-200 flex justify-end gap-2 pt-4">
-        <button
-          type="button"
-          onClick={handleCancel}
-          disabled={isSaving}
-          className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 transition-colors"
-        >
-          Cancel
-        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={isSaving}
+            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
         <button
           type="submit"
           disabled={isSaving}
@@ -208,4 +209,4 @@ function Account({
   );
 }
 
-export default Account;
+export default FormAccount;

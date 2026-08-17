@@ -19,6 +19,8 @@ import { publicProfileLoader } from "./api/publicProfileLoader";
 import PublicLayout from "./layouts/PublicLayout";
 import Post from "./pages/post/Post";
 import PostDetail from "./pages/post/PostDetail";
+import request from "./pages/request/request";
+import Settings from "./pages/settings/settings";
 
 export const routes = createBrowserRouter([
   {
@@ -58,6 +60,8 @@ export const routes = createBrowserRouter([
           { path: "friends", Component: Friends },
           { path: "post", Component: Post },
           { path: "posts/:postId", Component: PostDetail },
+          { path: "request", Component: request },
+          { path: "settings", Component: Settings },
         ],
       },
       { path: "403", Component: Forbidden },

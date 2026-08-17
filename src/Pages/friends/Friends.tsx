@@ -1,11 +1,30 @@
+import profileApi from "../../api/profile";
+import FriendsList from "../../components/FriendsList";
 import SearchUsers from "../../components/SearchUsers";
-import UserFeed from "../../components/UserFeed";
 
 function Friends() {
   return (
     <div className="space-y-6">
       <SearchUsers />
-      <UserFeed feedType="friends" showSortControl={true} />
+      <FriendsList
+        fetchFriendsApi={async ({ page, search, sort }) => {
+          const response = await profileApi.getFriends({
+            pageIndex: page,
+            pageSize: 10,
+            searchTerm: search,
+            sortBy: "BecameFriendsAt",
+            sortDescending: sort === "desc",
+          });
+
+          return {
+            items: response.items,
+            totalPages: response.totalPages,
+          };
+        }}
+        onRemoveFriendApi={async (userId) => {
+          await profileApi.removeFriend(userId);
+        }}
+      />
     </div>
   );
 }
